@@ -8,6 +8,7 @@ edition = "2021"
 [dependencies]
 native-windows-gui = {version="1.0.12", default-features=false, features=["dynamic_layout", "frame", "menu", "file-dialog", "list-view", "embed-resource"]}
 native-windows-derive = "1.0.3"
+byteorder = "1.4.3"
 
 [build-dependencies]
 embed-resource = "1.6"

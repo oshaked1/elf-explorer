@@ -136,7 +136,18 @@ impl ElfExplorer {
         let mut f = File::open(&*filename).expect("Cannot open file");
         let mut contents = vec![0; metadata.len() as usize];
         f.read(&mut contents).expect("Buffer overflow");
-        let elf = elf::Elf::from(contents);
+        let elf = match elf::Elf::from(contents) {
+            Ok(val) => val,
+            Err(err) => match err {
+                elf::ParsingError::InvalidByteOrder(msg) => {
+                    nwg::modal_error_message(
+                        &self.window,
+                        "Error parsing file",
+                        &msg);
+                    return;
+                }
+            }
+        };
         *self.elf.borrow_mut() = Some(elf);
 
         *self.file_name.borrow_mut() = filename;

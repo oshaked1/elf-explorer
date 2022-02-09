@@ -69,6 +69,7 @@ impl ElfHeaderView {
     pub fn populate(&self, elf: &Elf) {
         self.list.clear();
 
+        // insert e_ident field
         let e_ident_field = nwg::InsertListViewItem {
             index: Some(0),
             column_index: 0,
@@ -81,6 +82,26 @@ impl ElfHeaderView {
         };
         self.list.insert_item(e_ident_field);
         self.list.insert_item(e_ident_data);
+
+        // insert e_type field
+        let e_type_field = nwg::InsertListViewItem {
+            index: Some(1),
+            column_index: 0,
+            text: Some("e_type".to_owned())
+        };
+        let e_type_value = nwg::InsertListViewItem {
+            index: Some(1),
+            column_index: 1,
+            text: Some(elf.hdr.e_type.to_str())
+        };
+        let e_type_data = nwg::InsertListViewItem {
+            index: Some(1),
+            column_index: 2,
+            text: Some(format!("{}", elf.hdr.e_type.val))
+        };
+        self.list.insert_item(e_type_field);
+        self.list.insert_item(e_type_value);
+        self.list.insert_item(e_type_data);
 
         self.e_ident_view.populate(&elf.hdr.e_ident)
     }

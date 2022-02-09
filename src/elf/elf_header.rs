@@ -1,16 +1,35 @@
+use byteorder::{BigEndian, LittleEndian, ReadBytesExt};
+
 use crate::utils::RcSlice;
+use super::ParsingError;
 
 const EI_NIDENT: usize = 16;
 
 pub struct ElfHdr {
     pub raw: RcSlice<u8>,
     pub e_ident: EIdent,
+    pub e_type: EType,
 }
 
 impl ElfHdr {
-    pub fn from(raw: RcSlice<u8>) -> Self {
+    pub fn from(raw: RcSlice<u8>) -> Result<Self, ParsingError> {
         let e_ident = EIdent::from(RcSlice::from(&raw, 0, EI_NIDENT));
-        Self { raw, e_ident }
+
+        let is_little_endian = match e_ident.ei_data.val {
+            1 => true,
+            2 => false,
+            _ => { return Err(ParsingError::InvalidByteOrder("Could not determine byte order from EI_DATA field".to_owned())); }
+        };
+        
+        let e_type: u16;
+        if is_little_endian {
+            e_type = (&raw.get()[16..=17]).read_u16::<LittleEndian>().unwrap();
+        }
+        else {
+            e_type = (&raw.get()[16..=17]).read_u16::<BigEndian>().unwrap();
+        }
+        
+        Ok(Self { raw, e_ident, e_type: EType { val: e_type } })
     }
 }
 
@@ -137,7 +156,24 @@ impl EiOsAbi {
             97 => String::from("ARM - ABI"),
             102 => String::from("CellOS Lv-2"),
             255 => String::from("Standalone App"),
-            other => format!("<unknown: 0x{:x}>", other),
+            other => format!("<unknown: 0x{:x}>", other)
+        }
+    }
+}
+
+pub struct EType {
+    pub val: u16
+}
+
+impl EType {
+    pub fn to_str(&self) -> String {
+        match self.val {
+            0 => "NONE (None)".to_owned(),
+            1 => "REL (Relocatable file)".to_owned(),
+            2 => "EXEC (Executable file)".to_owned(),
+            3 => "DYN (Shared object file)".to_owned(),
+            4 => "CORE (Core file)".to_owned(),
+            other => format!("<unknown: 0x{:x}>", other)
         }
     }
 }
