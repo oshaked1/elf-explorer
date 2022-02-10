@@ -139,14 +139,15 @@ impl ElfExplorer {
         let elf = match elf::Elf::from(contents) {
             Ok(val) => val,
             Err(err) => match err {
-                elf::ParsingError::InvalidByteOrder(msg) => {
+                elf::ParsingError::InvalidByteOrder(msg) |
+                elf::ParsingError::InvalidNativeSize(msg) => {
                     nwg::modal_error_message(
                         &self.window,
                         "Error parsing file",
                         &msg);
                     return;
                 }
-            }
+            },
         };
         *self.elf.borrow_mut() = Some(elf);
 

@@ -1,16 +1,16 @@
-use byteorder::{BigEndian, LittleEndian, ReadBytesExt};
-
 use crate::utils::RcSlice;
-use super::ParsingError;
+use super::{ParsingError, ElfNAddr};
 
 const EI_NIDENT: usize = 16;
 
 pub struct ElfHdr {
+    is_little_endian: bool,
     pub raw: RcSlice<u8>,
     pub e_ident: EIdent,
     pub e_type: EType,
     pub e_machine: EMachine,
-    pub e_version: u32
+    pub e_version: u32,
+    pub e_entry: ElfNAddr
 }
 
 impl ElfHdr {
@@ -26,30 +26,37 @@ impl ElfHdr {
         };
         
         // extract e_type
-        let e_type = match is_little_endian {
-            true => (&raw.get()[16..=17]).read_u16::<LittleEndian>(),
-            false => (&raw.get()[16..=17]).read_u16::<BigEndian>()
-        }.unwrap();
+        let e_type = raw.read_u16(16, is_little_endian);
 
         // extract e_machine
-        let e_machine = match is_little_endian {
-            true => (&raw.get()[18..=19]).read_u16::<LittleEndian>(),
-            false => (&raw.get()[18..=19]).read_u16::<BigEndian>()
-        }.unwrap();
+        let e_machine = raw.read_u16(18, is_little_endian);
 
         // extract e_version
-        let e_version = match is_little_endian {
-            true => (&raw.get()[20..=23]).read_u32::<LittleEndian>(),
-            false => (&raw.get()[20..=23]).read_u32::<BigEndian>()
-        }.unwrap();
+        let e_version = raw.read_u32(20, is_little_endian);
+
+        // determine native size
+        let is_64_bit = match e_ident.ei_class.val {
+            1 => false,
+            2 => true,
+            _ => { return Err(ParsingError::InvalidNativeSize("Could not determine native size from EI_CLASS field".to_owned())); }
+        };
+
+        // extract e_entry
+        let e_entry = raw.read_elfn_addr(24, is_little_endian, is_64_bit);
 
         Ok(Self {
+            is_little_endian,
             raw,
             e_ident,
             e_type: EType { val: e_type },
             e_machine: EMachine { val: e_machine },
-            e_version
+            e_version,
+            e_entry
         })
+    }
+
+    pub fn is_little_endian(&self) -> bool {
+        self.is_little_endian
     }
 }
 
@@ -226,6 +233,7 @@ impl EMachine {
             83 => "Atmel AVR 8-bit microcontroller".to_owned(),
             106 => "Analog Devices Blackfin".to_owned(),
             183 => "AArch64".to_owned(),
+            243 => "RISC-V".to_owned(),
             0x9026 => "Alpha".to_owned(),
             other => format!("<unknown: 0x{:x}>", other)
         }

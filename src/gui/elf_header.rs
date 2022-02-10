@@ -69,6 +69,9 @@ impl ElfHeaderView {
     pub fn populate(&self, elf: &Elf) {
         self.list.clear();
 
+        // get byte order
+        let is_little_endian = elf.is_little_endian();
+
         // insert e_ident field
         let e_ident_field = nwg::InsertListViewItem {
             index: Some(0),
@@ -142,6 +145,34 @@ impl ElfHeaderView {
         self.list.insert_item(e_version_field);
         self.list.insert_item(e_version_value);
         self.list.insert_item(e_version_data);
+
+        // insert e_entry field
+        let e_entry_field = nwg::InsertListViewItem {
+            index: Some(4),
+            column_index: 0,
+            text: Some("e_entry".to_owned())
+        };
+        let text = match elf.hdr.e_entry {
+            crate::elf::ElfNAddr::Elf32Addr(val) => format!("0x{:x}", val),
+            crate::elf::ElfNAddr::Elf64Addr(val) => format!("0x{:x}", val)
+        };
+        let e_entry_value = nwg::InsertListViewItem {
+            index: Some(4),
+            column_index: 1,
+            text: Some(text)
+        };
+        let text = match elf.hdr.e_entry {
+            crate::elf::ElfNAddr::Elf32Addr(val) => utils::u32_to_hex(val, is_little_endian),
+            crate::elf::ElfNAddr::Elf64Addr(val) => utils::u64_to_hex(val, is_little_endian)
+        };
+        let e_entry_data = nwg::InsertListViewItem {
+            index: Some(4),
+            column_index: 2,
+            text: Some(text)
+        };
+        self.list.insert_item(e_entry_field);
+        self.list.insert_item(e_entry_value);
+        self.list.insert_item(e_entry_data);
 
         self.e_ident_view.populate(&elf.hdr.e_ident)
     }
