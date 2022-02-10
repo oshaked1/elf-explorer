@@ -103,6 +103,26 @@ impl ElfHeaderView {
         self.list.insert_item(e_type_value);
         self.list.insert_item(e_type_data);
 
+        // insert e_machine field
+        let e_machine_field = nwg::InsertListViewItem {
+            index: Some(2),
+            column_index: 0,
+            text: Some("e_machine".to_owned())
+        };
+        let e_machine_value = nwg::InsertListViewItem {
+            index: Some(2),
+            column_index: 1,
+            text: Some(elf.hdr.e_machine.to_str())
+        };
+        let e_machine_data = nwg::InsertListViewItem {
+            index: Some(2),
+            column_index: 2,
+            text: Some(format!("{}", elf.hdr.e_machine.val))
+        };
+        self.list.insert_item(e_machine_field);
+        self.list.insert_item(e_machine_value);
+        self.list.insert_item(e_machine_data);
+
         self.e_ident_view.populate(&elf.hdr.e_ident)
     }
 
