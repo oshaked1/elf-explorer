@@ -97,7 +97,7 @@ impl ElfHeaderView {
         let e_type_data = nwg::InsertListViewItem {
             index: Some(1),
             column_index: 2,
-            text: Some(format!("{}", elf.hdr.e_type.val))
+            text: Some(format!("{:X}", elf.hdr.e_type.val))
         };
         self.list.insert_item(e_type_field);
         self.list.insert_item(e_type_value);
@@ -117,11 +117,31 @@ impl ElfHeaderView {
         let e_machine_data = nwg::InsertListViewItem {
             index: Some(2),
             column_index: 2,
-            text: Some(format!("{}", elf.hdr.e_machine.val))
+            text: Some(format!("{:X}", elf.hdr.e_machine.val))
         };
         self.list.insert_item(e_machine_field);
         self.list.insert_item(e_machine_value);
         self.list.insert_item(e_machine_data);
+
+        // insert e_version field
+        let e_version_field = nwg::InsertListViewItem {
+            index: Some(3),
+            column_index: 0,
+            text: Some("e_version".to_owned())
+        };
+        let e_version_value = nwg::InsertListViewItem {
+            index: Some(3),
+            column_index: 1,
+            text: Some(format!("0x{:x}", elf.hdr.e_version))
+        };
+        let e_version_data = nwg::InsertListViewItem {
+            index: Some(3),
+            column_index: 2,
+            text: Some(format!("{:X}", elf.hdr.e_version))
+        };
+        self.list.insert_item(e_version_field);
+        self.list.insert_item(e_version_value);
+        self.list.insert_item(e_version_data);
 
         self.e_ident_view.populate(&elf.hdr.e_ident)
     }

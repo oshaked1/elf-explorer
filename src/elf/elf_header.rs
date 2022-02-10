@@ -10,6 +10,7 @@ pub struct ElfHdr {
     pub e_ident: EIdent,
     pub e_type: EType,
     pub e_machine: EMachine,
+    pub e_version: u32
 }
 
 impl ElfHdr {
@@ -36,11 +37,18 @@ impl ElfHdr {
             false => (&raw.get()[18..=19]).read_u16::<BigEndian>()
         }.unwrap();
 
+        // extract e_version
+        let e_version = match is_little_endian {
+            true => (&raw.get()[20..=23]).read_u32::<LittleEndian>(),
+            false => (&raw.get()[20..=23]).read_u32::<BigEndian>()
+        }.unwrap();
+
         Ok(Self {
             raw,
             e_ident,
             e_type: EType { val: e_type },
-            e_machine: EMachine { val: e_machine }
+            e_machine: EMachine { val: e_machine },
+            e_version
         })
     }
 }
