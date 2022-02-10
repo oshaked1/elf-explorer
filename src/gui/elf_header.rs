@@ -86,6 +86,9 @@ impl ElfHeaderView {
         self.list.insert_item(e_ident_field);
         self.list.insert_item(e_ident_data);
 
+        // populate e_ident view
+        self.e_ident_view.populate(&elf.hdr.e_ident);
+
         // insert e_type field
         let e_type_field = nwg::InsertListViewItem {
             index: Some(1),
@@ -174,7 +177,61 @@ impl ElfHeaderView {
         self.list.insert_item(e_entry_value);
         self.list.insert_item(e_entry_data);
 
-        self.e_ident_view.populate(&elf.hdr.e_ident)
+        // insert e_phoff field
+        let e_phoff_field = nwg::InsertListViewItem {
+            index: Some(5),
+            column_index: 0,
+            text: Some("e_phoff".to_owned())
+        };
+        let text = match elf.hdr.e_phoff {
+            crate::elf::ElfNOff::Elf32Off(val) => format!("0x{:x}", val),
+            crate::elf::ElfNOff::Elf64Off(val) => format!("0x{:x}", val)
+        };
+        let e_phoff_value = nwg::InsertListViewItem {
+            index: Some(5),
+            column_index: 1,
+            text: Some(text)
+        };
+        let text = match elf.hdr.e_phoff {
+            crate::elf::ElfNOff::Elf32Off(val) => utils::u32_to_hex(val, is_little_endian),
+            crate::elf::ElfNOff::Elf64Off(val) => utils::u64_to_hex(val, is_little_endian)
+        };
+        let e_phoff_data = nwg::InsertListViewItem {
+            index: Some(5),
+            column_index: 2,
+            text: Some(text)
+        };
+        self.list.insert_item(e_phoff_field);
+        self.list.insert_item(e_phoff_value);
+        self.list.insert_item(e_phoff_data);
+
+        // insert e_shoff field
+        let e_shoff_field = nwg::InsertListViewItem {
+            index: Some(6),
+            column_index: 0,
+            text: Some("e_shoff".to_owned())
+        };
+        let text = match elf.hdr.e_shoff {
+            crate::elf::ElfNOff::Elf32Off(val) => format!("0x{:x}", val),
+            crate::elf::ElfNOff::Elf64Off(val) => format!("0x{:x}", val)
+        };
+        let e_shoff_value = nwg::InsertListViewItem {
+            index: Some(6),
+            column_index: 1,
+            text: Some(text)
+        };
+        let text = match elf.hdr.e_shoff {
+            crate::elf::ElfNOff::Elf32Off(val) => utils::u32_to_hex(val, is_little_endian),
+            crate::elf::ElfNOff::Elf64Off(val) => utils::u64_to_hex(val, is_little_endian)
+        };
+        let e_shoff_data = nwg::InsertListViewItem {
+            index: Some(6),
+            column_index: 2,
+            text: Some(text)
+        };
+        self.list.insert_item(e_shoff_field);
+        self.list.insert_item(e_shoff_value);
+        self.list.insert_item(e_shoff_data);
     }
 
     fn select(&self) {

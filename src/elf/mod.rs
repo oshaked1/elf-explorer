@@ -30,6 +30,11 @@ pub enum ElfNAddr {
     Elf64Addr(u64)
 }
 
+pub enum ElfNOff {
+    Elf32Off(u32),
+    Elf64Off(u64)
+}
+
 #[derive(Debug)]
 pub enum ParsingError {
     InvalidByteOrder(String),

@@ -1,5 +1,5 @@
 use crate::utils::RcSlice;
-use super::{ParsingError, ElfNAddr};
+use super::{ParsingError, ElfNAddr, ElfNOff};
 
 const EI_NIDENT: usize = 16;
 
@@ -10,7 +10,9 @@ pub struct ElfHdr {
     pub e_type: EType,
     pub e_machine: EMachine,
     pub e_version: u32,
-    pub e_entry: ElfNAddr
+    pub e_entry: ElfNAddr,
+    pub e_phoff: ElfNOff,
+    pub e_shoff: ElfNOff
 }
 
 impl ElfHdr {
@@ -44,6 +46,20 @@ impl ElfHdr {
         // extract e_entry
         let e_entry = raw.read_elfn_addr(24, is_little_endian, is_64_bit);
 
+        // extract e_phoff
+        let offset = match is_64_bit {
+            true => 32,
+            false => 28
+        };
+        let e_phoff = raw.read_elfn_off(offset, is_little_endian, is_64_bit);
+
+        // extract e_shoff
+        let offset = match is_64_bit {
+            true => 40,
+            false => 32
+        };
+        let e_shoff = raw.read_elfn_off(offset, is_little_endian, is_64_bit);
+
         Ok(Self {
             is_little_endian,
             raw,
@@ -51,7 +67,9 @@ impl ElfHdr {
             e_type: EType { val: e_type },
             e_machine: EMachine { val: e_machine },
             e_version,
-            e_entry
+            e_entry,
+            e_phoff,
+            e_shoff
         })
     }
 

@@ -1,7 +1,7 @@
 use std::rc::Rc;
 use byteorder::{BigEndian, LittleEndian, ReadBytesExt};
 
-use crate::elf::ElfNAddr;
+use crate::elf::{ElfNAddr, ElfNOff};
 
 pub struct RcSlice<T> {
     rc: Rc<Vec<T>>,
@@ -44,20 +44,24 @@ impl RcSlice<u8> {
         }
     }
 
+    pub fn read_u64(&self, offset: usize, is_little_endian: bool) -> u64 {
+        match is_little_endian {
+            true => (&self.get()[offset..offset+8]).read_u64::<LittleEndian>().unwrap(),
+            false => (&self.get()[offset..offset+8]).read_u64::<BigEndian>().unwrap()
+        }
+    }
+
     pub fn read_elfn_addr(&self, offset: usize, is_little_endian: bool, is_64_bit: bool) -> crate::elf::ElfNAddr {
         match is_64_bit {
-            true => {
-                match is_little_endian {
-                    true => ElfNAddr::Elf64Addr((&self.get()[offset..offset+8]).read_u64::<LittleEndian>().unwrap()),
-                    false => ElfNAddr::Elf64Addr((&self.get()[offset..offset+8]).read_u64::<BigEndian>().unwrap())
-                }
-            },
-            false => {
-                match is_little_endian {
-                    true => ElfNAddr::Elf32Addr((&self.get()[offset..offset+4]).read_u32::<LittleEndian>().unwrap()),
-                    false => ElfNAddr::Elf32Addr((&self.get()[offset..offset+4]).read_u32::<BigEndian>().unwrap())
-                }
-            }
+            true => ElfNAddr::Elf64Addr(self.read_u64(offset, is_little_endian)),
+            false => ElfNAddr::Elf32Addr(self.read_u32(offset, is_little_endian))
+        }
+    }
+
+    pub fn read_elfn_off(&self, offset: usize, is_little_endian: bool, is_64_bit: bool) -> crate::elf::ElfNOff {
+        match is_64_bit {
+            true => ElfNOff::Elf64Off(self.read_u64(offset, is_little_endian)),
+            false => ElfNOff::Elf32Off(self.read_u32(offset, is_little_endian))
         }
     }
 }
