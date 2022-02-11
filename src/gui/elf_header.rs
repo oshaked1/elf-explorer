@@ -2,9 +2,8 @@ extern crate native_windows_derive as nwd;
 extern crate native_windows_gui as nwg;
 
 use nwd::NwgPartial;
-use crate::elf::{Elf, EIdent, Description};
-use crate::utils;
-use crate::descriptive_field;
+use crate::elf::{Elf, EIdent, Description, ElfNAddr, ElfNOff};
+use crate::{utils, descriptive_field, address_field, offset_field};
 
 // GRID, FULL_ROW_SELECT
 const FLAGS: nwg::ListViewExFlags = nwg::ListViewExFlags::from_bits_truncate(nwg::ListViewExFlags::GRID.bits() | nwg::ListViewExFlags::FULL_ROW_SELECT.bits());
@@ -117,88 +116,13 @@ impl ElfHeaderView {
         self.list.insert_item(e_version_data);
 
         // insert e_entry field
-        let e_entry_field = nwg::InsertListViewItem {
-            index: Some(4),
-            column_index: 0,
-            text: Some("e_entry".to_owned())
-        };
-        let text = match elf.hdr.e_entry {
-            crate::elf::ElfNAddr::Elf32Addr(val) => format!("0x{:x}", val),
-            crate::elf::ElfNAddr::Elf64Addr(val) => format!("0x{:x}", val)
-        };
-        let e_entry_value = nwg::InsertListViewItem {
-            index: Some(4),
-            column_index: 1,
-            text: Some(text)
-        };
-        let text = match elf.hdr.e_entry {
-            crate::elf::ElfNAddr::Elf32Addr(val) => utils::u32_to_hex(val, is_little_endian),
-            crate::elf::ElfNAddr::Elf64Addr(val) => utils::u64_to_hex(val, is_little_endian)
-        };
-        let e_entry_data = nwg::InsertListViewItem {
-            index: Some(4),
-            column_index: 2,
-            text: Some(text)
-        };
-        self.list.insert_item(e_entry_field);
-        self.list.insert_item(e_entry_value);
-        self.list.insert_item(e_entry_data);
+        address_field!("e_entry", elf.hdr.e_entry, self.list, 4, is_little_endian);
 
         // insert e_phoff field
-        let e_phoff_field = nwg::InsertListViewItem {
-            index: Some(5),
-            column_index: 0,
-            text: Some("e_phoff".to_owned())
-        };
-        let text = match elf.hdr.e_phoff {
-            crate::elf::ElfNOff::Elf32Off(val) => format!("0x{:x}", val),
-            crate::elf::ElfNOff::Elf64Off(val) => format!("0x{:x}", val)
-        };
-        let e_phoff_value = nwg::InsertListViewItem {
-            index: Some(5),
-            column_index: 1,
-            text: Some(text)
-        };
-        let text = match elf.hdr.e_phoff {
-            crate::elf::ElfNOff::Elf32Off(val) => utils::u32_to_hex(val, is_little_endian),
-            crate::elf::ElfNOff::Elf64Off(val) => utils::u64_to_hex(val, is_little_endian)
-        };
-        let e_phoff_data = nwg::InsertListViewItem {
-            index: Some(5),
-            column_index: 2,
-            text: Some(text)
-        };
-        self.list.insert_item(e_phoff_field);
-        self.list.insert_item(e_phoff_value);
-        self.list.insert_item(e_phoff_data);
+        offset_field!("e_phoff", elf.hdr.e_phoff, self.list, 5, is_little_endian);
 
         // insert e_shoff field
-        let e_shoff_field = nwg::InsertListViewItem {
-            index: Some(6),
-            column_index: 0,
-            text: Some("e_shoff".to_owned())
-        };
-        let text = match elf.hdr.e_shoff {
-            crate::elf::ElfNOff::Elf32Off(val) => format!("0x{:x}", val),
-            crate::elf::ElfNOff::Elf64Off(val) => format!("0x{:x}", val)
-        };
-        let e_shoff_value = nwg::InsertListViewItem {
-            index: Some(6),
-            column_index: 1,
-            text: Some(text)
-        };
-        let text = match elf.hdr.e_shoff {
-            crate::elf::ElfNOff::Elf32Off(val) => utils::u32_to_hex(val, is_little_endian),
-            crate::elf::ElfNOff::Elf64Off(val) => utils::u64_to_hex(val, is_little_endian)
-        };
-        let e_shoff_data = nwg::InsertListViewItem {
-            index: Some(6),
-            column_index: 2,
-            text: Some(text)
-        };
-        self.list.insert_item(e_shoff_field);
-        self.list.insert_item(e_shoff_value);
-        self.list.insert_item(e_shoff_data);
+        offset_field!("e_shoff", elf.hdr.e_shoff, self.list, 6, is_little_endian);
 
         // insert e_flags field
         let e_flags_field = nwg::InsertListViewItem {
