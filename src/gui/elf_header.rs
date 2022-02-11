@@ -3,7 +3,7 @@ extern crate native_windows_gui as nwg;
 
 use nwd::NwgPartial;
 use crate::elf::{Elf, EIdent, Description, ElfNAddr, ElfNOff};
-use crate::{utils, descriptive_field, address_field, offset_field};
+use crate::{utils, descriptive_field, address_field, offset_field, size_field};
 
 // GRID, FULL_ROW_SELECT
 const FLAGS: nwg::ListViewExFlags = nwg::ListViewExFlags::from_bits_truncate(nwg::ListViewExFlags::GRID.bits() | nwg::ListViewExFlags::FULL_ROW_SELECT.bits());
@@ -145,44 +145,10 @@ impl ElfHeaderView {
         self.list.insert_item(e_flags_data);
 
         // insert e_ehsize field
-        let e_ehsize_field = nwg::InsertListViewItem {
-            index: Some(8),
-            column_index: 0,
-            text: Some("e_ehsize".to_owned())
-        };
-        let e_ehsize_value = nwg::InsertListViewItem {
-            index: Some(8),
-            column_index: 1,
-            text: Some(format!("0x{:x}", elf.hdr.e_ehsize))
-        };
-        let e_ehsize_data = nwg::InsertListViewItem {
-            index: Some(8),
-            column_index: 2,
-            text: Some(format!("{:X}", elf.hdr.e_ehsize))
-        };
-        self.list.insert_item(e_ehsize_field);
-        self.list.insert_item(e_ehsize_value);
-        self.list.insert_item(e_ehsize_data);
+        size_field!("e_ehsize", elf.hdr.e_ehsize, self.list, 8);
 
         // insert e_phentsize field
-        let e_phentsize_field = nwg::InsertListViewItem {
-            index: Some(9),
-            column_index: 0,
-            text: Some("e_phentsize".to_owned())
-        };
-        let e_phentsize_value = nwg::InsertListViewItem {
-            index: Some(9),
-            column_index: 1,
-            text: Some(format!("0x{:x}", elf.hdr.e_phentsize))
-        };
-        let e_phentsize_data = nwg::InsertListViewItem {
-            index: Some(9),
-            column_index: 2,
-            text: Some(format!("{:X}", elf.hdr.e_phentsize))
-        };
-        self.list.insert_item(e_phentsize_field);
-        self.list.insert_item(e_phentsize_value);
-        self.list.insert_item(e_phentsize_data);
+        size_field!("e_phentsize", elf.hdr.e_phentsize, self.list, 9);
     }
 
     fn select(&self) {
