@@ -114,6 +114,9 @@ impl ElfHeaderView {
 
         // insert e_shnum field
         decimal_field!("e_shnum", elf.hdr.e_shnum, self.list, 12);
+
+        // insert e_shstrndx field
+        decimal_field!("e_shstrndx", elf.hdr.e_shstrndx, self.list, 13);
     }
 
     fn select(&self) {
