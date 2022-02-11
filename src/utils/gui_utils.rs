@@ -14,7 +14,7 @@ macro_rules! descriptive_field {
         let data = nwg::InsertListViewItem {
             index: Some($row),
             column_index: 2,
-            text: Some(format!("0x{:x}", $val.val))
+            text: Some(format!("0x{:x}", $val.0))
         };
         $list.insert_item(field);
         $list.insert_item(value);

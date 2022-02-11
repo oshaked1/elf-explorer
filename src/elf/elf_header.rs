@@ -1,5 +1,5 @@
 use crate::utils::RcSlice;
-use super::{ParsingError, ElfNAddr, ElfNOff};
+use super::{Description, ParsingError, ElfNAddr, ElfNOff};
 
 const EI_NIDENT: usize = 16;
 
@@ -24,23 +24,23 @@ impl ElfHdr {
         let e_ident = EIdent::from(RcSlice::from(&raw, 0, EI_NIDENT));
 
         // determine byte order
-        let is_little_endian = match e_ident.ei_data.val {
+        let is_little_endian = match e_ident.ei_data.0 {
             1 => true,
             2 => false,
             _ => { return Err(ParsingError::InvalidByteOrder("Could not determine byte order from EI_DATA field".to_owned())); }
         };
         
         // extract e_type
-        let e_type = raw.read_u16(16, is_little_endian);
+        let e_type = EType(raw.read_u16(16, is_little_endian));
 
         // extract e_machine
-        let e_machine = raw.read_u16(18, is_little_endian);
+        let e_machine = EMachine(raw.read_u16(18, is_little_endian));
 
         // extract e_version
         let e_version = raw.read_u32(20, is_little_endian);
 
         // determine native size
-        let is_64_bit = match e_ident.ei_class.val {
+        let is_64_bit = match e_ident.ei_class.0 {
             1 => false,
             2 => true,
             _ => { return Err(ParsingError::InvalidNativeSize("Could not determine native size from EI_CLASS field".to_owned())); }
@@ -88,8 +88,8 @@ impl ElfHdr {
             is_little_endian,
             raw,
             e_ident,
-            e_type: EType { val: e_type },
-            e_machine: EMachine { val: e_machine },
+            e_type,
+            e_machine,
             e_version,
             e_entry,
             e_phoff,
@@ -126,10 +126,10 @@ impl EIdent {
         let ei_mag1 = temp[1];
         let ei_mag2 = temp[2];
         let ei_mag3 = temp[3];
-        let ei_class = EiClass { val: temp[4] };
-        let ei_data = EiData { val: temp[5] };
-        let ei_version = EiVersion { val: temp[6] };
-        let ei_osabi = EiOsAbi { val: temp[7] };
+        let ei_class = EiClass(temp[4]);
+        let ei_data = EiData(temp[5]);
+        let ei_version = EiVersion(temp[6]);
+        let ei_osabi = EiOsAbi(temp[7]);
         let ei_abi_version = temp[8];
         let ei_pad = RcSlice::from(&raw, 9, EI_NIDENT);
         Self {
@@ -150,13 +150,11 @@ impl EIdent {
 
 
 #[derive(Debug, PartialEq)]
-pub struct EiClass {
-    pub val: u8
-}
+pub struct EiClass(pub u8);
 
-impl EiClass {
-    pub fn to_str(&self) -> String {
-        match self.val {
+impl Description for EiClass {
+    fn to_str(&self) -> String {
+        match self.0 {
             0 => String::from("none"),
             1 => String::from("ELF32"),
             2 => String::from("ELF64"),
@@ -166,13 +164,11 @@ impl EiClass {
 }
 
 #[derive(Debug, PartialEq)]
-pub struct EiData {
-    pub val: u8
-}
+pub struct EiData(pub u8);
 
-impl EiData {
-    pub fn to_str(&self) -> String {
-        match self.val {
+impl Description for EiData {
+    fn to_str(&self) -> String {
+        match self.0 {
             0 => String::from("none"),
             1 => String::from("2's complement, little endian"),
             2 => String::from("2's complement, big endian"),
@@ -182,13 +178,11 @@ impl EiData {
 }
 
 #[derive(Debug, PartialEq)]
-pub struct EiVersion {
-    pub val: u8
-}
+pub struct EiVersion(pub u8);
 
-impl EiVersion {
-    pub fn to_str(&self) -> String {
-        match self.val {
+impl Description for EiVersion {
+    fn to_str(&self) -> String {
+        match self.0 {
             0 => String::from("0"),
             1 => String::from("1 (current)"),
             other => format!("{}", other)
@@ -197,15 +191,13 @@ impl EiVersion {
 }
 
 #[derive(Debug, PartialEq)]
-pub struct EiOsAbi {
-    pub val: u8
-}
+pub struct EiOsAbi(pub u8);
 
 // https://github.com/eliben/pyelftools/blob/master/elftools/elf/enums.py#L35
 // https://github.com/eliben/pyelftools/blob/master/elftools/elf/descriptions.py#L308
-impl EiOsAbi {
-    pub fn to_str(&self) -> String {
-        match self.val {
+impl Description for EiOsAbi {
+    fn to_str(&self) -> String {
+        match self.0 {
             0 => String::from("UNIX - System V"),
             1 => String::from("UNIX - HP-UX"),
             2 => String::from("UNIX - NetBSD"),
@@ -233,13 +225,11 @@ impl EiOsAbi {
     }
 }
 
-pub struct EType {
-    pub val: u16
-}
+pub struct EType(pub u16);
 
-impl EType {
-    pub fn to_str(&self) -> String {
-        match self.val {
+impl Description for EType {
+    fn to_str(&self) -> String {
+        match self.0 {
             0 => "NONE (None)".to_owned(),
             1 => "REL (Relocatable file)".to_owned(),
             2 => "EXEC (Executable file)".to_owned(),
@@ -250,13 +240,11 @@ impl EType {
     }
 }
 
-pub struct EMachine {
-    pub val: u16
-}
+pub struct EMachine(pub u16);
 
-impl EMachine {
-    pub fn to_str(&self) -> String {
-        match self.val {
+impl Description for EMachine {
+    fn to_str(&self) -> String {
+        match self.0 {
             0 => "None".to_owned(),
             1 => "WE32100".to_owned(),
             2 => "Sparc".to_owned(),

@@ -5,6 +5,10 @@ pub use elf_header::*;
 
 const ELF_HDR_MAX_SIZE: usize = 64;
 
+pub trait Description {
+    fn to_str(&self) -> String;
+}
+
 pub struct Elf {
     is_little_endian: bool,
     pub hdr: ElfHdr

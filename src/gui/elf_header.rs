@@ -2,7 +2,7 @@ extern crate native_windows_derive as nwd;
 extern crate native_windows_gui as nwg;
 
 use nwd::NwgPartial;
-use crate::elf::{Elf, EIdent};
+use crate::elf::{Elf, EIdent, Description};
 use crate::utils;
 use crate::descriptive_field;
 
