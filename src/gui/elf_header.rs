@@ -4,6 +4,7 @@ extern crate native_windows_gui as nwg;
 use nwd::NwgPartial;
 use crate::elf::{Elf, EIdent};
 use crate::utils;
+use crate::descriptive_field;
 
 // GRID, FULL_ROW_SELECT
 const FLAGS: nwg::ListViewExFlags = nwg::ListViewExFlags::from_bits_truncate(nwg::ListViewExFlags::GRID.bits() | nwg::ListViewExFlags::FULL_ROW_SELECT.bits());
@@ -90,44 +91,10 @@ impl ElfHeaderView {
         self.e_ident_view.populate(&elf.hdr.e_ident);
 
         // insert e_type field
-        let e_type_field = nwg::InsertListViewItem {
-            index: Some(1),
-            column_index: 0,
-            text: Some("e_type".to_owned())
-        };
-        let e_type_value = nwg::InsertListViewItem {
-            index: Some(1),
-            column_index: 1,
-            text: Some(elf.hdr.e_type.to_str())
-        };
-        let e_type_data = nwg::InsertListViewItem {
-            index: Some(1),
-            column_index: 2,
-            text: Some(format!("{:X}", elf.hdr.e_type.val))
-        };
-        self.list.insert_item(e_type_field);
-        self.list.insert_item(e_type_value);
-        self.list.insert_item(e_type_data);
+        descriptive_field!("e_type", elf.hdr.e_type, self.list, 1);
 
         // insert e_machine field
-        let e_machine_field = nwg::InsertListViewItem {
-            index: Some(2),
-            column_index: 0,
-            text: Some("e_machine".to_owned())
-        };
-        let e_machine_value = nwg::InsertListViewItem {
-            index: Some(2),
-            column_index: 1,
-            text: Some(elf.hdr.e_machine.to_str())
-        };
-        let e_machine_data = nwg::InsertListViewItem {
-            index: Some(2),
-            column_index: 2,
-            text: Some(format!("{:X}", elf.hdr.e_machine.val))
-        };
-        self.list.insert_item(e_machine_field);
-        self.list.insert_item(e_machine_value);
-        self.list.insert_item(e_machine_data);
+        descriptive_field!("e_machine", elf.hdr.e_machine, self.list, 2);
 
         // insert e_version field
         let e_version_field = nwg::InsertListViewItem {
@@ -375,84 +342,16 @@ impl EIdentView {
         self.list.insert_item(ei_mag_data);
 
         // insert EI_CLASS field
-        let ei_class_field = nwg::InsertListViewItem {
-            index: Some(1),
-            column_index: 0,
-            text: Some("EI_CLASS".to_owned())
-        };
-        let ei_class_value = nwg::InsertListViewItem {
-            index: Some(1),
-            column_index: 1,
-            text: Some(e_ident.ei_class.to_str())
-        };
-        let ei_class_data = nwg::InsertListViewItem {
-            index: Some(1),
-            column_index: 2,
-            text: Some(format!("{}", e_ident.ei_class.val))
-        };
-        self.list.insert_item(ei_class_field);
-        self.list.insert_item(ei_class_value);
-        self.list.insert_item(ei_class_data);
+        descriptive_field!("EI_CLASS", e_ident.ei_class, self.list, 1);
 
         // insert EI_DATA field
-        let ei_data_field = nwg::InsertListViewItem {
-            index: Some(2),
-            column_index: 0,
-            text: Some("EI_DATA".to_owned())
-        };
-        let ei_data_value = nwg::InsertListViewItem {
-            index: Some(2),
-            column_index: 1,
-            text: Some(e_ident.ei_data.to_str())
-        };
-        let ei_data_data = nwg::InsertListViewItem {
-            index: Some(2),
-            column_index: 2,
-            text: Some(format!("{}", e_ident.ei_data.val))
-        };
-        self.list.insert_item(ei_data_field);
-        self.list.insert_item(ei_data_value);
-        self.list.insert_item(ei_data_data);
+        descriptive_field!("EI_DATA", e_ident.ei_data, self.list, 2);
 
         // insert EI_VERSION field
-        let ei_version_field = nwg::InsertListViewItem {
-            index: Some(3),
-            column_index: 0,
-            text: Some("EI_VERSION".to_owned())
-        };
-        let ei_version_value = nwg::InsertListViewItem {
-            index: Some(3),
-            column_index: 1,
-            text: Some(e_ident.ei_version.to_str())
-        };
-        let ei_version_data = nwg::InsertListViewItem {
-            index: Some(3),
-            column_index: 2,
-            text: Some(format!("{}", e_ident.ei_version.val))
-        };
-        self.list.insert_item(ei_version_field);
-        self.list.insert_item(ei_version_value);
-        self.list.insert_item(ei_version_data);
+        descriptive_field!("EI_VERSION", e_ident.ei_version, self.list, 3);
 
         // insert EI_OSABI field
-        let ei_osabi_field = nwg::InsertListViewItem {
-            index: Some(4),
-            column_index: 0,
-            text: Some("EI_OSABI".to_owned())
-        };
-        let ei_osabi_value = nwg::InsertListViewItem {
-            index: Some(4),
-            column_index: 1,
-            text: Some(e_ident.ei_osabi.to_str())
-        };
-        let ei_osabi_data = nwg::InsertListViewItem {
-            index: Some(4),
-            column_index: 2,
-            text: Some(format!("{}", e_ident.ei_osabi.val))
-        };
-        self.list.insert_item(ei_osabi_field);
-        self.list.insert_item(ei_osabi_value);
-        self.list.insert_item(ei_osabi_data);
+        descriptive_field!("EI_OSABI", e_ident.ei_osabi, self.list, 4);
 
         // insert EI_ABIVERSION field
         let ei_abiversion_field = nwg::InsertListViewItem {
