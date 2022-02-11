@@ -109,3 +109,21 @@ macro_rules! size_field {
         $list.insert_item(data);
     };
 }
+
+#[macro_export]
+macro_rules! raw_field {
+    ($name:expr, $val:expr, $list:expr, $row:expr) => {
+        let field = nwg::InsertListViewItem {
+            index: Some($row),
+            column_index: 0,
+            text: Some($name.to_owned())
+        };
+        let data = nwg::InsertListViewItem {
+            index: Some($row),
+            column_index: 2,
+            text: Some(utils::raw_to_hex($val.get()))
+        };
+        $list.insert_item(field);
+        $list.insert_item(data);
+    };
+}

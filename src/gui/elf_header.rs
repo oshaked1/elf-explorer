@@ -3,7 +3,7 @@ extern crate native_windows_gui as nwg;
 
 use nwd::NwgPartial;
 use crate::elf::{Elf, EIdent, Description, ElfNAddr, ElfNOff};
-use crate::{utils, descriptive_field, address_field, offset_field, size_field};
+use crate::{utils, descriptive_field, address_field, offset_field, size_field, raw_field};
 
 // GRID, FULL_ROW_SELECT
 const FLAGS: nwg::ListViewExFlags = nwg::ListViewExFlags::from_bits_truncate(nwg::ListViewExFlags::GRID.bits() | nwg::ListViewExFlags::FULL_ROW_SELECT.bits());
@@ -73,18 +73,7 @@ impl ElfHeaderView {
         let is_little_endian = elf.is_little_endian();
 
         // insert e_ident field
-        let e_ident_field = nwg::InsertListViewItem {
-            index: Some(0),
-            column_index: 0,
-            text: Some("e_ident".to_owned())
-        };
-        let e_ident_data = nwg::InsertListViewItem {
-            index: Some(0),
-            column_index: 2,
-            text: Some(utils::raw_to_hex(elf.hdr.e_ident.raw.get()))
-        };
-        self.list.insert_item(e_ident_field);
-        self.list.insert_item(e_ident_data);
+        raw_field!("e_ident", elf.hdr.e_ident.raw, self.list, 0);
 
         // populate e_ident view
         self.e_ident_view.populate(&elf.hdr.e_ident);
@@ -258,17 +247,6 @@ impl EIdentView {
         self.list.insert_item(ei_abiversion_data);
 
         // insert EI_PAD field
-        let ei_pad_field = nwg::InsertListViewItem {
-            index: Some(6),
-            column_index: 0,
-            text: Some("EI_PAD".to_owned())
-        };
-        let ei_pad_data = nwg::InsertListViewItem {
-            index: Some(6),
-            column_index: 2,
-            text: Some(utils::raw_to_hex(e_ident.ei_pad.get()))
-        };
-        self.list.insert_item(ei_pad_field);
-        self.list.insert_item(ei_pad_data);
+        raw_field!("EI_PAD", e_ident.ei_pad, self.list, 6);
     }
 }
