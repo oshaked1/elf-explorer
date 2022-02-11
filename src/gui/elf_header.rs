@@ -272,6 +272,26 @@ impl ElfHeaderView {
         self.list.insert_item(e_ehsize_field);
         self.list.insert_item(e_ehsize_value);
         self.list.insert_item(e_ehsize_data);
+
+        // insert e_phentsize field
+        let e_phentsize_field = nwg::InsertListViewItem {
+            index: Some(9),
+            column_index: 0,
+            text: Some("e_phentsize".to_owned())
+        };
+        let e_phentsize_value = nwg::InsertListViewItem {
+            index: Some(9),
+            column_index: 1,
+            text: Some(format!("0x{:x}", elf.hdr.e_phentsize))
+        };
+        let e_phentsize_data = nwg::InsertListViewItem {
+            index: Some(9),
+            column_index: 2,
+            text: Some(format!("{:X}", elf.hdr.e_phentsize))
+        };
+        self.list.insert_item(e_phentsize_field);
+        self.list.insert_item(e_phentsize_value);
+        self.list.insert_item(e_phentsize_data);
     }
 
     fn select(&self) {

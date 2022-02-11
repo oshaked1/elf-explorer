@@ -14,7 +14,8 @@ pub struct ElfHdr {
     pub e_phoff: ElfNOff,
     pub e_shoff: ElfNOff,
     pub e_flags: u32,
-    pub e_ehsize: u16
+    pub e_ehsize: u16,
+    pub e_phentsize: u16
 }
 
 impl ElfHdr {
@@ -76,6 +77,13 @@ impl ElfHdr {
         };
         let e_ehsize = raw.read_u16(offset, is_little_endian);
 
+        // extract e_phentsize
+        let offset = match is_64_bit {
+            true => 54,
+            false => 42
+        };
+        let e_phentsize = raw.read_u16(offset, is_little_endian);
+
         Ok(Self {
             is_little_endian,
             raw,
@@ -87,7 +95,8 @@ impl ElfHdr {
             e_phoff,
             e_shoff,
             e_flags,
-            e_ehsize
+            e_ehsize,
+            e_phentsize
         })
     }
 
