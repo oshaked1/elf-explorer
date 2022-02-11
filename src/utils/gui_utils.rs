@@ -127,3 +127,51 @@ macro_rules! raw_field {
         $list.insert_item(data);
     };
 }
+
+#[macro_export]
+macro_rules! hex_field {
+    ($name:expr, $val:expr, $list:expr, $row:expr) => {
+        let field = nwg::InsertListViewItem {
+            index: Some($row),
+            column_index: 0,
+            text: Some($name.to_owned())
+        };
+        let value = nwg::InsertListViewItem {
+            index: Some($row),
+            column_index: 1,
+            text: Some(format!("0x{:x}", $val))
+        };
+        let data = nwg::InsertListViewItem {
+            index: Some($row),
+            column_index: 2,
+            text: Some(format!("0x{:x}", $val))
+        };
+        $list.insert_item(field);
+        $list.insert_item(value);
+        $list.insert_item(data);
+    };
+}
+
+#[macro_export]
+macro_rules! decimal_field {
+    ($name:expr, $val:expr, $list:expr, $row:expr) => {
+        let field = nwg::InsertListViewItem {
+            index: Some($row),
+            column_index: 0,
+            text: Some($name.to_owned())
+        };
+        let value = nwg::InsertListViewItem {
+            index: Some($row),
+            column_index: 1,
+            text: Some(format!("{}", $val))
+        };
+        let data = nwg::InsertListViewItem {
+            index: Some($row),
+            column_index: 2,
+            text: Some(format!("0x{:x}", $val))
+        };
+        $list.insert_item(field);
+        $list.insert_item(value);
+        $list.insert_item(data);
+    };
+}

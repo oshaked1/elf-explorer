@@ -3,7 +3,7 @@ extern crate native_windows_gui as nwg;
 
 use nwd::NwgPartial;
 use crate::elf::{Elf, EIdent, Description, ElfNAddr, ElfNOff};
-use crate::{utils, descriptive_field, address_field, offset_field, size_field, raw_field};
+use crate::{utils, descriptive_field, address_field, offset_field, size_field, raw_field, hex_field, decimal_field};
 
 // GRID, FULL_ROW_SELECT
 const FLAGS: nwg::ListViewExFlags = nwg::ListViewExFlags::from_bits_truncate(nwg::ListViewExFlags::GRID.bits() | nwg::ListViewExFlags::FULL_ROW_SELECT.bits());
@@ -66,6 +66,7 @@ impl ElfHeaderView {
         self.e_ident_view.reset();
         self.e_ident_frame.set_visible(false);
     }
+
     pub fn populate(&self, elf: &Elf) {
         self.list.clear();
 
@@ -85,24 +86,7 @@ impl ElfHeaderView {
         descriptive_field!("e_machine", elf.hdr.e_machine, self.list, 2);
 
         // insert e_version field
-        let e_version_field = nwg::InsertListViewItem {
-            index: Some(3),
-            column_index: 0,
-            text: Some("e_version".to_owned())
-        };
-        let e_version_value = nwg::InsertListViewItem {
-            index: Some(3),
-            column_index: 1,
-            text: Some(format!("0x{:x}", elf.hdr.e_version))
-        };
-        let e_version_data = nwg::InsertListViewItem {
-            index: Some(3),
-            column_index: 2,
-            text: Some(format!("{:X}", elf.hdr.e_version))
-        };
-        self.list.insert_item(e_version_field);
-        self.list.insert_item(e_version_value);
-        self.list.insert_item(e_version_data);
+        hex_field!("e_version", elf.hdr.e_version, self.list, 3);
 
         // insert e_entry field
         address_field!("e_entry", elf.hdr.e_entry, self.list, 4, is_little_endian);
@@ -114,24 +98,7 @@ impl ElfHeaderView {
         offset_field!("e_shoff", elf.hdr.e_shoff, self.list, 6, is_little_endian);
 
         // insert e_flags field
-        let e_flags_field = nwg::InsertListViewItem {
-            index: Some(7),
-            column_index: 0,
-            text: Some("e_flags".to_owned())
-        };
-        let e_flags_value = nwg::InsertListViewItem {
-            index: Some(7),
-            column_index: 1,
-            text: Some(format!("0x{:x}", elf.hdr.e_flags))
-        };
-        let e_flags_data = nwg::InsertListViewItem {
-            index: Some(7),
-            column_index: 2,
-            text: Some(format!("{:X}", elf.hdr.e_flags))
-        };
-        self.list.insert_item(e_flags_field);
-        self.list.insert_item(e_flags_value);
-        self.list.insert_item(e_flags_data);
+        hex_field!("e_flags", elf.hdr.e_flags, self.list, 7);
 
         // insert e_ehsize field
         size_field!("e_ehsize", elf.hdr.e_ehsize, self.list, 8);
@@ -233,18 +200,7 @@ impl EIdentView {
         descriptive_field!("EI_OSABI", e_ident.ei_osabi, self.list, 4);
 
         // insert EI_ABIVERSION field
-        let ei_abiversion_field = nwg::InsertListViewItem {
-            index: Some(5),
-            column_index: 0,
-            text: Some("EI_ABIVERSION".to_owned())
-        };
-        let ei_abiversion_data = nwg::InsertListViewItem {
-            index: Some(5),
-            column_index: 2,
-            text: Some(format!("{}", e_ident.ei_abi_version))
-        };
-        self.list.insert_item(ei_abiversion_field);
-        self.list.insert_item(ei_abiversion_data);
+        decimal_field!("EI_ABIVERSION", e_ident.ei_abi_version, self.list, 5);
 
         // insert EI_PAD field
         raw_field!("EI_PAD", e_ident.ei_pad, self.list, 6);
