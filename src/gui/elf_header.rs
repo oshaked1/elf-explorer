@@ -111,6 +111,9 @@ impl ElfHeaderView {
 
         // insert e_shentsize field
         size_field!("e_shentsize", elf.hdr.e_shentsize, self.list, 11);
+
+        // insert e_shnum field
+        decimal_field!("e_shnum", elf.hdr.e_shnum, self.list, 12);
     }
 
     fn select(&self) {
