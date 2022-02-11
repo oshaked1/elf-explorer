@@ -63,8 +63,8 @@ macro_rules! offset_field {
             text: Some($name.to_owned())
         };
         let text = match $val {
-            ElfNOff::Elf32Off(val) => format!("0x{:x} bytes into file", val),
-            ElfNOff::Elf64Off(val) => format!("0x{:x} bytes into file", val)
+            ElfNOff::Elf32Off(val) => format!("0x{:x} (bytes into file)", val),
+            ElfNOff::Elf64Off(val) => format!("0x{:x} (bytes into file)", val)
         };
         let value = nwg::InsertListViewItem {
             index: Some($row),
@@ -97,7 +97,7 @@ macro_rules! size_field {
         let value = nwg::InsertListViewItem {
             index: Some($row),
             column_index: 1,
-            text: Some(format!("{} bytes", $val))
+            text: Some(format!("{} (bytes)", $val))
         };
         let data = nwg::InsertListViewItem {
             index: Some($row),
