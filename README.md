@@ -17,3 +17,7 @@ cargo run
 ## Screenshots
 
 ![screenshot](doc/screenshot.png)
+
+## Motivation
+
+This is my first project using the [Rust](https://www.rust-lang.org/) language, so the main motivation for this project is learning the language. I also started this project as a way to learn about the ELF file format. Finally, this is my first time experimenting with Windows' graphical API (and probably the last).
