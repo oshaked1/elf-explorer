@@ -1,7 +1,7 @@
 extern crate native_windows_derive as nwd;
 extern crate native_windows_gui as nwg;
 
-use nwd::NwgUi;
+use nwd::{NwgUi, NwgPartial};
 use nwg::NativeUi;
 
 use std::cell::RefCell;
@@ -12,16 +12,14 @@ use std::io::Read;
 use crate::elf;
 
 mod nav_panel;
-use nav_panel::*;
 mod elf_header;
-use elf_header::*;
 
 #[derive(Default, NwgUi)]
 pub struct ElfExplorer {
     #[nwg_resource]
     embed: nwg::EmbedResource,
 
-    #[nwg_control(size: (800, 600), position: (200, 200), title: "ELF Explorer", accept_files: true)]
+    #[nwg_control(size: (800, 620), position: (200, 200), title: "ELF Explorer", accept_files: true)]
     #[nwg_events(OnInit: [ElfExplorer::init], OnResize: [ElfExplorer::size], OnWindowMaximize: [ElfExplorer::size], OnWindowClose: [ElfExplorer::exit], OnFileDrop: [ElfExplorer::drop_file(SELF, EVT_DATA)])]
     window: nwg::Window,
 
@@ -43,19 +41,45 @@ pub struct ElfExplorer {
     file_name: RefCell<String>,
     elf: RefCell<Option<elf::Elf>>,
 
+    // Field description view
+    #[nwg_control(position: (0, 580), size: (800, 20), flags: "NONE")]
+    field_desc_frame: nwg::Frame,
+
+    #[nwg_partial(parent: field_desc_frame)]
+    field_desc: FieldDesc,
+
     // Navigation panel
     #[nwg_control(position: (0, 0), size: (200, 580), flags: "NONE")]
     nav_panel_frame: nwg::Frame,
 
-    #[nwg_partial(parent: nav_panel_frame)]
-    nav_panel: NavPanel,
+    #[nwg_layout(parent: nav_panel_frame)]
+    nav_panel_layout: nwg::DynLayout,
+
+    #[nwg_control(parent: nav_panel_frame, position: (0, 0), size: (200, 580), item_count: 1, list_style: ListViewStyle::Detailed, ex_flags: nwg::ListViewExFlags::FULL_ROW_SELECT)]
+    #[nwg_events(OnListViewClick: [ElfExplorer::nav_panel_select_event])]
+    nav_panel_list: nwg::ListView,
 
     // ELF header view
     #[nwg_control(position: (200, 0), size: (600, 580), flags: "NONE")]
     elf_header_frame: nwg::Frame,
     
-    #[nwg_partial(parent: elf_header_frame)]
-    elf_header_view: ElfHeaderView,
+    #[nwg_layout(parent: elf_header_frame)]
+    elf_header_layout: nwg::DynLayout,
+
+    #[nwg_control(parent: elf_header_frame, position: (0, 0), size: (600, 348), item_count: 1, list_style: ListViewStyle::Detailed, ex_flags: elf_header::FLAGS)]
+    #[nwg_events(OnListViewClick: [ElfExplorer::elf_header_select_event])]
+    elf_header_list: nwg::ListView,
+
+    // e_ident view
+    #[nwg_control(parent: elf_header_frame, position: (0, 348), size: (600, 232), flags: "NONE")]
+    e_ident_frame: nwg::Frame,
+    
+    #[nwg_layout(parent: e_ident_frame)]
+    e_ident_layout: nwg::DynLayout,
+
+    #[nwg_control(parent: e_ident_frame, position: (0, 0), size: (600, 232), item_count: 1, list_style: ListViewStyle::Detailed, ex_flags: elf_header::FLAGS)]
+    #[nwg_events(OnListViewClick: [ElfExplorer::e_ident_select_event])]
+    e_ident_list: nwg::ListView
 }
 
 impl ElfExplorer {
@@ -64,22 +88,29 @@ impl ElfExplorer {
         
         self.nav_panel_frame.set_visible(false);
         self.elf_header_frame.set_visible(false);
+        self.field_desc_frame.set_visible(true);
+
+        self.field_desc.set("Open a file using the top menu, or by dragging it into the window");
 
         self.main_layout.add_child((0, 0), (0, 100), &self.nav_panel_frame);
+        self.main_layout.add_child((0, 100), (100, 0), &self.field_desc_frame);
         self.main_layout.add_child((0, 0), (100, 100), &self.elf_header_frame);
 
-        self.nav_panel.init(&self.nav_panel_frame);
-        self.elf_header_view.init(&self.elf_header_frame);
+        self.nav_panel_init();
+        self.field_desc.init(&self.field_desc_frame);
+        self.elf_header_init();
     }
 
     fn init_elf_view(&self) {
+        self.nav_panel_select(0);
         self.nav_panel_frame.set_visible(true);
-        self.nav_panel.select(0);
 
-        self.elf_header_view.reset();
+        self.elf_header_reset();
         let elf = self.elf.borrow();
-        self.elf_header_view.populate(&elf.as_ref().unwrap());
+        self.elf_header_populate(&elf.as_ref().unwrap());
         self.elf_header_frame.set_visible(true);
+
+        self.field_desc.set("Select any item to display a brief explanation");
     }
 
     fn size(&self) {
@@ -178,4 +209,35 @@ pub fn run() {
     let _ui = ElfExplorer::build_ui(Default::default()).expect("Failed to build UI");
 
     nwg::dispatch_thread_events();
+}
+
+
+#[derive(Default, NwgPartial)]
+pub struct FieldDesc {
+    #[nwg_layout]
+    layout: nwg::DynLayout,
+
+    #[nwg_control(position: (0, 0), size: (800, 29), readonly: true, flags: "VISIBLE | DISABLED")]
+    description: nwg::TextBox
+}
+
+impl FieldDesc {
+    fn init(&self, frame: &nwg::Frame) {
+        self.layout.parent(frame);
+        self.layout.add_child((0, 0), (100, 100), &self.description);
+
+        let mut font = nwg::Font::default();
+
+        nwg::Font::builder()
+            .family("MS Shell Dlg")
+            .size(16)
+            .build(&mut font)
+            .expect("Failed to build font");
+        
+        self.description.set_font(Some(&font));
+    }
+
+    fn set(&self, text: &str) {
+        self.description.set_text(text);
+    }
 }

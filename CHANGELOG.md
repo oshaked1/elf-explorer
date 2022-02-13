@@ -8,10 +8,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Added
 
 - The **ELF Header** section now includes all of the ELF header's fields.
+- A text box at the bottom of the screen was added. It displays a brief description of the current selected item, as well as some startup tips.
 
 ### Changed
 
 - Most fields are now added using a set of macros for common field types.
+- Layout items which need to set the description in the text box (see the added section) are no longer implemented using the partials UI of nwg. Instead, they are placed directly into the main app struct.
 
 ## [[0.1.0]](https://github.com/oshaked1/elf-explorer/releases/tag/v0.1.0) - 2022-02-07
 
