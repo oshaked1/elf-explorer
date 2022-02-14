@@ -1,11 +1,7 @@
-extern crate native_windows_derive as nwd;
-extern crate native_windows_gui as nwg;
+use native_windows_gui as nwg;
 
 use crate::elf::{Elf, EIdent, Description, ElfNAddr, ElfNOff};
 use crate::{utils, descriptive_field, address_field, offset_field, size_field, raw_field, hex_field, decimal_field};
-
-// GRID, FULL_ROW_SELECT
-pub const FLAGS: nwg::ListViewExFlags = nwg::ListViewExFlags::from_bits_truncate(nwg::ListViewExFlags::GRID.bits() | nwg::ListViewExFlags::FULL_ROW_SELECT.bits());
 
 // ELF header methods
 impl super::ElfExplorer {

@@ -13,6 +13,10 @@ use crate::elf;
 
 mod nav_panel;
 mod elf_header;
+mod pheaders;
+
+// GRID, FULL_ROW_SELECT
+const EX_FLAGS: nwg::ListViewExFlags = nwg::ListViewExFlags::from_bits_truncate(nwg::ListViewExFlags::GRID.bits() | nwg::ListViewExFlags::FULL_ROW_SELECT.bits());
 
 #[derive(Default, NwgUi)]
 pub struct ElfExplorer {
@@ -55,7 +59,7 @@ pub struct ElfExplorer {
     #[nwg_layout(parent: nav_panel_frame)]
     nav_panel_layout: nwg::DynLayout,
 
-    #[nwg_control(parent: nav_panel_frame, position: (0, 0), size: (200, 580), item_count: 1, list_style: ListViewStyle::Detailed, ex_flags: nwg::ListViewExFlags::FULL_ROW_SELECT)]
+    #[nwg_control(parent: nav_panel_frame, position: (0, 0), size: (200, 580), item_count: 1, list_style: ListViewStyle::Detailed, flags: "VISIBLE | SINGLE_SELECTION",  ex_flags: nwg::ListViewExFlags::FULL_ROW_SELECT)]
     #[nwg_events(OnListViewClick: [ElfExplorer::nav_panel_select_event])]
     nav_panel_list: nwg::ListView,
 
@@ -66,7 +70,7 @@ pub struct ElfExplorer {
     #[nwg_layout(parent: elf_header_frame)]
     elf_header_layout: nwg::DynLayout,
 
-    #[nwg_control(parent: elf_header_frame, position: (0, 0), size: (600, 348), item_count: 1, list_style: ListViewStyle::Detailed, ex_flags: elf_header::FLAGS)]
+    #[nwg_control(parent: elf_header_frame, position: (0, 0), size: (600, 348), item_count: 1, list_style: ListViewStyle::Detailed, flags: "VISIBLE | SINGLE_SELECTION", ex_flags: EX_FLAGS)]
     #[nwg_events(OnListViewClick: [ElfExplorer::elf_header_select_event])]
     elf_header_list: nwg::ListView,
 
@@ -77,9 +81,20 @@ pub struct ElfExplorer {
     #[nwg_layout(parent: e_ident_frame)]
     e_ident_layout: nwg::DynLayout,
 
-    #[nwg_control(parent: e_ident_frame, position: (0, 0), size: (600, 232), item_count: 1, list_style: ListViewStyle::Detailed, ex_flags: elf_header::FLAGS)]
+    #[nwg_control(parent: e_ident_frame, position: (0, 0), size: (600, 232), item_count: 1, list_style: ListViewStyle::Detailed, flags: "VISIBLE | SINGLE_SELECTION",  ex_flags: EX_FLAGS)]
     #[nwg_events(OnListViewClick: [ElfExplorer::e_ident_select_event])]
-    e_ident_list: nwg::ListView
+    e_ident_list: nwg::ListView,
+
+    // Program headers view
+    #[nwg_control(position: (200, 0), size: (600, 580), flags: "NONE")]
+    pheaders_frame: nwg::Frame,
+    
+    #[nwg_layout(parent: elf_header_frame)]
+    pheaders_layout: nwg::DynLayout,
+
+    #[nwg_control(parent: pheaders_frame, position: (0, 0), size: (600, 348), item_count: 1, list_style: ListViewStyle::Detailed, flags: "VISIBLE | SINGLE_SELECTION", ex_flags: EX_FLAGS)]
+    #[nwg_events(OnListViewClick: [ElfExplorer::pheaders_select_event])]
+    pheaders_list: nwg::ListView,
 }
 
 impl ElfExplorer {
@@ -88,6 +103,8 @@ impl ElfExplorer {
         
         self.nav_panel_frame.set_visible(false);
         self.elf_header_frame.set_visible(false);
+        self.pheaders_frame.set_visible(false);
+
         self.field_desc_frame.set_visible(true);
 
         self.field_desc.set("Open a file using the top menu, or by dragging it into the window");
@@ -95,14 +112,18 @@ impl ElfExplorer {
         self.main_layout.add_child((0, 0), (0, 100), &self.nav_panel_frame);
         self.main_layout.add_child((0, 100), (100, 0), &self.field_desc_frame);
         self.main_layout.add_child((0, 0), (100, 100), &self.elf_header_frame);
+        self.main_layout.add_child((0, 0), (100, 100), &self.pheaders_frame);
 
         self.nav_panel_init();
         self.field_desc.init(&self.field_desc_frame);
         self.elf_header_init();
+        self.pheaders_init();
     }
 
     fn init_elf_view(&self) {
-        self.nav_panel_select(0);
+        self.nav_panel_list.select_item(0, true);
+        self.set_all_frames_invisible();
+        self.elf_header_frame.set_visible(true);
         self.nav_panel_frame.set_visible(true);
 
         self.elf_header_reset();
