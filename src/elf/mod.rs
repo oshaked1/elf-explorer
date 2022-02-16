@@ -2,6 +2,8 @@ use crate::utils::RcSlice;
 use std::rc::Rc;
 mod elf_header;
 pub use elf_header::*;
+mod program_headers;
+pub use program_headers::*;
 
 const ELF_HDR_MAX_SIZE: usize = 64;
 
@@ -11,21 +13,30 @@ pub trait Description {
 
 pub struct Elf {
     is_little_endian: bool,
-    pub hdr: ElfHdr
+    is_64_bit: bool,
+    pub hdr: ElfHeader,
+    pub phdr_table: ProgramHeaderTable
 }
 
 impl Elf {
     pub fn from(raw: Vec<u8>) -> Result<Self, ParsingError>  {
         let len = raw.len();
         let raw = RcSlice::new(Rc::new(raw), 0, len);
-        let hdr = ElfHdr::from(RcSlice::from(&raw, 0, ELF_HDR_MAX_SIZE))?;
+        let hdr = ElfHeader::from(RcSlice::from(&raw, 0, ELF_HDR_MAX_SIZE))?;
         let is_little_endian = hdr.is_little_endian();
+        let is_64_bit = hdr.is_64_bit();
 
-        Ok(Self { is_little_endian, hdr })
+        let phdr_table = ProgramHeaderTable::from(RcSlice::from(&raw, 0, len), &hdr);
+
+        Ok(Self { is_little_endian, is_64_bit, hdr, phdr_table })
     }
 
     pub fn is_little_endian(&self) -> bool {
         self.is_little_endian
+    }
+
+    pub fn is_64_bit(&self) -> bool {
+        self.is_64_bit
     }
 }
 
@@ -34,9 +45,27 @@ pub enum ElfNAddr {
     Elf64Addr(u64)
 }
 
+impl ElfNAddr {
+    pub fn to_int(&self) -> u64 {
+        match self {
+            Self::Elf32Addr(addr) => addr.to_owned() as u64,
+            Self::Elf64Addr(addr) => addr.to_owned()
+        }
+    }
+}
+
 pub enum ElfNOff {
     Elf32Off(u32),
     Elf64Off(u64)
+}
+
+impl ElfNOff {
+    pub fn to_int(&self) -> u64 {
+        match self {
+            Self::Elf32Off(off) => off.to_owned() as u64,
+            Self::Elf64Off(off) => off.to_owned()
+        }
+    }
 }
 
 #[derive(Debug)]

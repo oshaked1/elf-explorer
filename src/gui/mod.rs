@@ -85,7 +85,7 @@ pub struct ElfExplorer {
     #[nwg_events(OnListViewClick: [ElfExplorer::e_ident_select_event])]
     e_ident_list: nwg::ListView,
 
-    // Program headers view
+    // Program header table view
     #[nwg_control(position: (200, 0), size: (600, 580), flags: "NONE")]
     pheaders_frame: nwg::Frame,
     
@@ -95,6 +95,17 @@ pub struct ElfExplorer {
     #[nwg_control(parent: pheaders_frame, position: (0, 0), size: (600, 348), item_count: 1, list_style: ListViewStyle::Detailed, flags: "VISIBLE | SINGLE_SELECTION", ex_flags: EX_FLAGS)]
     #[nwg_events(OnListViewClick: [ElfExplorer::pheaders_select_event])]
     pheaders_list: nwg::ListView,
+
+    // phdr view
+    #[nwg_control(parent: pheaders_frame, position: (0, 348), size: (600, 232), flags: "NONE")]
+    phdr_frame: nwg::Frame,
+    
+    #[nwg_layout(parent: pheaders_frame)]
+    phdr_layout: nwg::DynLayout,
+
+    #[nwg_control(parent: phdr_frame, position: (0, 0), size: (600, 232), item_count: 1, list_style: ListViewStyle::Detailed, flags: "VISIBLE | SINGLE_SELECTION",  ex_flags: EX_FLAGS)]
+    #[nwg_events(OnListViewClick: [ElfExplorer::phdr_select_event])]
+    phdr_list: nwg::ListView
 }
 
 impl ElfExplorer {

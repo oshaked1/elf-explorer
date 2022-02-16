@@ -43,14 +43,24 @@ impl super::ElfExplorer {
 
             match item {
                 0 => {
+                    if !self.elf_header_frame.visible() {
+                        self.elf_header_reset();
+                        let elf = self.elf.borrow();
+                        self.elf_header_populate(&elf.as_ref().unwrap())
+                    }
                     self.set_all_frames_invisible();
                     self.elf_header_frame.set_visible(true);
                     set("The ELF header contains general information as well as the locations of the program and section header tables");
                 }
                 1 => {
+                    if !self.pheaders_frame.visible() {
+                        self.pheaders_reset();
+                        let elf = self.elf.borrow();
+                        self.pheaders_populate(&elf.as_ref().unwrap())
+                    }
                     self.set_all_frames_invisible();
                     self.pheaders_frame.set_visible(true);
-                    set("TODO");
+                    set("Program headers contain segments which describe the memory layout of the program and are necessary for loading it");
                 }
                 _ => set("")
             }

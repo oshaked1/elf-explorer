@@ -3,8 +3,9 @@ use super::{Description, ParsingError, ElfNAddr, ElfNOff};
 
 const EI_NIDENT: usize = 16;
 
-pub struct ElfHdr {
+pub struct ElfHeader {
     is_little_endian: bool,
+    is_64_bit: bool,
     pub raw: RcSlice<u8>,
     pub e_ident: EIdent,
     pub e_type: EType,
@@ -22,7 +23,7 @@ pub struct ElfHdr {
     pub e_shstrndx: u16
 }
 
-impl ElfHdr {
+impl ElfHeader {
     pub fn from(raw: RcSlice<u8>) -> Result<Self, ParsingError> {
         // extract e_ident
         let e_ident = EIdent::from(RcSlice::from(&raw, 0, EI_NIDENT));
@@ -118,6 +119,7 @@ impl ElfHdr {
 
         Ok(Self {
             is_little_endian,
+            is_64_bit,
             raw,
             e_ident,
             e_type,
@@ -138,6 +140,10 @@ impl ElfHdr {
 
     pub fn is_little_endian(&self) -> bool {
         self.is_little_endian
+    }
+
+    pub fn is_64_bit(&self) -> bool {
+        self.is_64_bit
     }
 }
 
