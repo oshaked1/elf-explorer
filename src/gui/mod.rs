@@ -100,7 +100,7 @@ pub struct ElfExplorer {
     #[nwg_control(parent: pheaders_frame, position: (0, 348), size: (600, 232), flags: "NONE")]
     phdr_frame: nwg::Frame,
     
-    #[nwg_layout(parent: pheaders_frame)]
+    #[nwg_layout(parent: phdr_frame)]
     phdr_layout: nwg::DynLayout,
 
     #[nwg_control(parent: phdr_frame, position: (0, 0), size: (600, 232), item_count: 1, list_style: ListViewStyle::Detailed, flags: "VISIBLE | SINGLE_SELECTION",  ex_flags: EX_FLAGS)]

@@ -121,7 +121,7 @@ impl Description for PType {
     }
 }
 
-pub struct PFlags(u32);
+pub struct PFlags(pub u32);
 
 impl Description for PFlags {
     fn to_str(&self) -> String {
