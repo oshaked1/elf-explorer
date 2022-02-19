@@ -16,7 +16,9 @@ cargo run
 
 ## Screenshots
 
-![screenshot](doc/screenshot.png)
+![screenshot](doc/screenshot1.png)
+
+![screenshot](doc/screenshot2.png)
 
 ## Motivation
 
