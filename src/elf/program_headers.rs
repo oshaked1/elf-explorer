@@ -126,13 +126,13 @@ pub struct PFlags(pub u32);
 impl Description for PFlags {
     fn to_str(&self) -> String {
         let mut s = String::with_capacity(3);
-        if self.0 & 1 != 0 {
+        if self.0 & 4 != 0 {
             s.push('R');
         }
         if self.0 & 2 != 0 {
             s.push('W');
         }
-        if self.0 & 4 != 0 {
+        if self.0 & 1 != 0 {
             s.push('E');
         }
         s
