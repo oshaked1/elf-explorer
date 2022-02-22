@@ -238,7 +238,7 @@ impl super::ElfExplorer {
                 3 => set("Segment loading address (physical)"),
                 4 => set("Segment size in the file"),
                 5 => set("Segment size in memory"),
-                6 => set("Segment permissions (R/W/X)"),
+                6 => set("Segment permissions (R=Read, W=Write, E=Execute)"),
                 7 => set("Alignment in memory"),
                 _ => set("")
             };

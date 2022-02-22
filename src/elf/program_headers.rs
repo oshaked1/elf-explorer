@@ -133,7 +133,7 @@ impl Description for PFlags {
             s.push('W');
         }
         if self.0 & 4 != 0 {
-            s.push('X');
+            s.push('E');
         }
         s
     }
