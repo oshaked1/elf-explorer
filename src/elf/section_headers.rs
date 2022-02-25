@@ -17,7 +17,7 @@ impl SectionHeaderTable {
     fn from_32_bit(raw: RcSlice<u8>, hdr: &ElfHeader) -> Vec<SectionHeader32> {
         let is_little_endian = hdr.is_little_endian();
         let is_64_bit = false;
-        let start_offset = hdr.e_shoff.to_int() as usize;
+        let start_offset = hdr.e_shoff.to_usize();
         let end_offset = start_offset as usize + (hdr.e_shnum as usize * hdr.e_shentsize as usize);
         let shdrs_raw = RcSlice::from(&raw, start_offset, end_offset);
         let mut shdrs = Vec::new();
@@ -34,6 +34,7 @@ impl SectionHeaderTable {
             let sh_addralign = temp.read_u32(32, is_little_endian);
             let sh_entsize = temp.read_u32(36, is_little_endian);
             shdrs.push(SectionHeader32 {
+                name: None,
                 sh_name,
                 sh_type,
                 sh_flags,
@@ -52,7 +53,7 @@ impl SectionHeaderTable {
     fn from_64_bit(raw: RcSlice<u8>, hdr: &ElfHeader) -> Vec<SectionHeader64> {
         let is_little_endian = hdr.is_little_endian();
         let is_64_bit = true;
-        let start_offset = hdr.e_shoff.to_int() as usize;
+        let start_offset = hdr.e_shoff.to_usize();
         let end_offset = start_offset as usize + (hdr.e_shnum as usize * hdr.e_shentsize as usize);
         let shdrs_raw = RcSlice::from(&raw, start_offset, end_offset);
         let mut shdrs = Vec::new();
@@ -69,6 +70,7 @@ impl SectionHeaderTable {
             let sh_addralign = temp.read_u64(48, is_little_endian);
             let sh_entsize = temp.read_u64(56, is_little_endian);
             shdrs.push(SectionHeader64 {
+                name: None,
                 sh_name,
                 sh_type,
                 sh_flags,
@@ -83,9 +85,39 @@ impl SectionHeaderTable {
         }
         shdrs
     }
+
+    pub fn populate_names(&mut self, filedata: RcSlice<u8>, hdr: &ElfHeader) {
+        match hdr.is_64_bit() {
+            true => {
+                let strtab_hdr = &self.shdrs64.as_ref().unwrap()[hdr.e_shstrndx as usize];
+                let offset = strtab_hdr.sh_offset.to_usize();
+                let size = strtab_hdr.sh_size as usize;
+                let strtab = &filedata.get()[offset..offset + size];
+                for shdr in self.shdrs64.as_mut().unwrap() {
+                    let offset = shdr.sh_name as usize;
+                    if let Ok(string) = std::str::from_utf8(&strtab[offset..]) {
+                        shdr.name = Some(string.to_owned());
+                    }
+                }
+            }
+            false => {
+                let strtab_hdr = &self.shdrs32.as_ref().unwrap()[hdr.e_shstrndx as usize];
+                let offset = strtab_hdr.sh_offset.to_usize();
+                let size = strtab_hdr.sh_size as usize;
+                let strtab = &filedata.get()[offset..offset + size];
+                for shdr in self.shdrs32.as_mut().unwrap() {
+                    let offset = shdr.sh_name as usize;
+                    if let Ok(string) = std::str::from_utf8(&strtab[offset..]) {
+                        shdr.name = Some(string.to_owned());
+                    }
+                }
+            }
+        };
+    }
 }
 
 pub struct SectionHeader32 {
+    pub name: Option<String>,
     pub sh_name: u32,
     pub sh_type: SHType,
     pub sh_flags: SHFlags32,
@@ -99,6 +131,7 @@ pub struct SectionHeader32 {
 }
 
 pub struct  SectionHeader64 {
+    pub name: Option<String>,
     pub sh_name: u32,
     pub sh_type: SHType,
     pub sh_flags: SHFlags64,

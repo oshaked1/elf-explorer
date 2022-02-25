@@ -30,7 +30,9 @@ impl Elf {
         let is_64_bit = hdr.is_64_bit();
 
         let phdr_table = ProgramHeaderTable::from(RcSlice::from(&raw, 0, len), &hdr);
-        let shdr_table = SectionHeaderTable::from(RcSlice::from(&raw, 0, len), &hdr);
+        let mut shdr_table = SectionHeaderTable::from(RcSlice::from(&raw, 0, len), &hdr);
+
+        shdr_table.populate_names(RcSlice::from(&raw, 0, len), &hdr);
 
         Ok(Self { is_little_endian, is_64_bit, hdr, phdr_table, shdr_table })
     }
@@ -50,10 +52,17 @@ pub enum ElfNAddr {
 }
 
 impl ElfNAddr {
-    pub fn to_int(&self) -> u64 {
+    pub fn to_u64(&self) -> u64 {
         match self {
             Self::Elf32Addr(addr) => addr.to_owned() as u64,
             Self::Elf64Addr(addr) => addr.to_owned()
+        }
+    }
+
+    pub fn to_usize(&self) -> usize {
+        match self {
+            Self::Elf32Addr(addr) => addr.to_owned() as usize,
+            Self::Elf64Addr(addr) => addr.to_owned() as usize
         }
     }
 }
@@ -64,10 +73,17 @@ pub enum ElfNOff {
 }
 
 impl ElfNOff {
-    pub fn to_int(&self) -> u64 {
+    pub fn to_u64(&self) -> u64 {
         match self {
             Self::Elf32Off(off) => off.to_owned() as u64,
             Self::Elf64Off(off) => off.to_owned()
+        }
+    }
+
+    pub fn to_usize(&self) -> usize {
+        match self {
+            Self::Elf32Off(off) => off.to_owned() as usize,
+            Self::Elf64Off(off) => off.to_owned() as usize
         }
     }
 }

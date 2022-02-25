@@ -25,11 +25,18 @@ impl super::ElfExplorer {
         let type_col = nwg::InsertListViewColumn {
             index: Some(1),
             fmt: None,
-            width: Some(495),
+            width: Some(150),
             text: Some("Type".to_owned())
+        };
+        let name_col = nwg::InsertListViewColumn {
+            index: Some(2),
+            fmt: None,
+            width: Some(345),
+            text: Some("Name".to_owned())
         };
         self.sheaders_list.insert_column(index_col);
         self.sheaders_list.insert_column(type_col);
+        self.sheaders_list.insert_column(name_col);
     }
 
     pub fn sheaders_reset(&self) {
@@ -50,13 +57,23 @@ impl super::ElfExplorer {
                         column_index: 0,
                         text: Some(format!("{}", i))
                     };
-                    let s_type = nwg::InsertListViewItem {
+                    let sh_type = nwg::InsertListViewItem {
                         index: Some(i as i32),
                         column_index: 1,
                         text: Some(shdr.sh_type.to_str())
                     };
+                    let name = match &shdr.name {
+                        Some(name) => name.to_owned(),
+                        None => "UNKNOWN".to_owned()
+                    };
+                    let sh_name = nwg::InsertListViewItem {
+                        index: Some(i as i32),
+                        column_index: 2,
+                        text: Some(name)
+                    };
                     self.sheaders_list.insert_item(index);
-                    self.sheaders_list.insert_item(s_type);
+                    self.sheaders_list.insert_item(sh_type);
+                    self.sheaders_list.insert_item(sh_name);
                 }
             },
             false => {
@@ -67,13 +84,23 @@ impl super::ElfExplorer {
                         column_index: 0,
                         text: Some(format!("{}", i))
                     };
-                    let s_type = nwg::InsertListViewItem {
+                    let sh_type = nwg::InsertListViewItem {
                         index: Some(i as i32),
                         column_index: 1,
                         text: Some(shdr.sh_type.to_str())
                     };
+                    let name = match &shdr.name {
+                        Some(name) => name.to_owned(),
+                        None => "UNKNOWN".to_owned()
+                    };
+                    let sh_name = nwg::InsertListViewItem {
+                        index: Some(i as i32),
+                        column_index: 2,
+                        text: Some(name)
+                    };
                     self.sheaders_list.insert_item(index);
-                    self.sheaders_list.insert_item(s_type);
+                    self.sheaders_list.insert_item(sh_type);
+                    self.sheaders_list.insert_item(sh_name);
                 }
             }
         }
@@ -169,7 +196,28 @@ impl super::ElfExplorer {
         let is_little_endian = elf.is_little_endian();
 
         // insert sh_name field
-        decimal_field!("sh_name", shdr.sh_name, list, 0);
+        let sh_name_field = nwg::InsertListViewItem {
+            index: Some(0),
+            column_index: 0,
+            text: Some("sh_name".to_owned())
+        };
+        let name = match &shdr.name {
+            Some(name) => name.to_owned(),
+            None => "UNKNOWN".to_owned()
+        };
+        let sh_name_value = nwg::InsertListViewItem {
+            index: Some(0),
+            column_index: 1,
+            text: Some(name)
+        };
+        let sh_name_data = nwg::InsertListViewItem {
+            index: Some(0),
+            column_index: 2,
+            text: Some(format!("0x{:x}", shdr.sh_name))
+        };
+        list.insert_item(sh_name_field);
+        list.insert_item(sh_name_value);
+        list.insert_item(sh_name_data);
 
         // insert sh_type field
         descriptive_field!("sh_type", shdr.sh_type, list, 1);
@@ -204,7 +252,28 @@ impl super::ElfExplorer {
         let is_little_endian = elf.is_little_endian();
 
         // insert sh_name field
-        decimal_field!("sh_name", shdr.sh_name, list, 0);
+        let sh_name_field = nwg::InsertListViewItem {
+            index: Some(0),
+            column_index: 0,
+            text: Some("sh_name".to_owned())
+        };
+        let name = match &shdr.name {
+            Some(name) => name.to_owned(),
+            None => "UNKNOWN".to_owned()
+        };
+        let sh_name_value = nwg::InsertListViewItem {
+            index: Some(0),
+            column_index: 1,
+            text: Some(name)
+        };
+        let sh_name_data = nwg::InsertListViewItem {
+            index: Some(0),
+            column_index: 2,
+            text: Some(format!("0x{:x}", shdr.sh_name))
+        };
+        list.insert_item(sh_name_field);
+        list.insert_item(sh_name_value);
+        list.insert_item(sh_name_data);
 
         // insert sh_type field
         descriptive_field!("sh_type", shdr.sh_type, list, 1);

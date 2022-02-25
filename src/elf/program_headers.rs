@@ -17,7 +17,7 @@ impl ProgramHeaderTable {
     fn from_32_bit(raw: RcSlice<u8>, hdr: &ElfHeader) -> Vec<ProgramHeader32> {
         let is_little_endian = hdr.is_little_endian();
         let is_64_bit = false;
-        let start_offset = hdr.e_phoff.to_int() as usize;
+        let start_offset = hdr.e_phoff.to_usize();
         let end_offset = start_offset as usize + (hdr.e_phnum as usize * hdr.e_phentsize as usize);
         let phdrs_raw = RcSlice::from(&raw, start_offset, end_offset);
         let mut phdrs = Vec::new();
@@ -48,7 +48,7 @@ impl ProgramHeaderTable {
     fn from_64_bit(raw: RcSlice<u8>, hdr: &ElfHeader) -> Vec<ProgramHeader64> {
         let is_little_endian = hdr.is_little_endian();
         let is_64_bit = true;
-        let start_offset = hdr.e_phoff.to_int() as usize;
+        let start_offset = hdr.e_phoff.to_usize();
         let end_offset = start_offset as usize + (hdr.e_phnum as usize * hdr.e_phentsize as usize);
         let phdrs_raw = RcSlice::from(&raw, start_offset, end_offset);
         let mut phdrs = Vec::new();
