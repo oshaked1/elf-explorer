@@ -5,6 +5,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [[Unreleased]](https://github.com/oshaked1/elf-explorer/compare/v0.3.0...HEAD)
 
+### Added
+
+- A **Section Headers** section was added.
+
+### Fixed
+
+- Using arrow keys for navigation now works as intended (#1).
+
 ## [[0.3.0]](https://github.com/oshaked1/elf-explorer/compare/v0.2.0...v0.3.0) - 2022-02-19
 
 ### Added
