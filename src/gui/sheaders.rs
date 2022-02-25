@@ -31,7 +31,7 @@ impl super::ElfExplorer {
         let name_col = nwg::InsertListViewColumn {
             index: Some(2),
             fmt: None,
-            width: Some(345),
+            width: Some(330),
             text: Some("Name".to_owned())
         };
         self.sheaders_list.insert_column(index_col);
