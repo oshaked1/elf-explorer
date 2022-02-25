@@ -61,7 +61,7 @@ pub struct ElfExplorer {
     nav_panel_layout: nwg::DynLayout,
 
     #[nwg_control(parent: nav_panel_frame, position: (0, 0), size: (200, 580), item_count: 1, list_style: ListViewStyle::Detailed, flags: "VISIBLE | SINGLE_SELECTION | ALWAYS_SHOW_SELECTION",  ex_flags: nwg::ListViewExFlags::FULL_ROW_SELECT)]
-    #[nwg_events(OnListViewClick: [ElfExplorer::nav_panel_select_event])]
+    #[nwg_events(OnListViewItemChanged: [ElfExplorer::nav_panel_select_event])]
     nav_panel_list: nwg::ListView,
 
     // ELF header view
@@ -72,7 +72,7 @@ pub struct ElfExplorer {
     elf_header_layout: nwg::DynLayout,
 
     #[nwg_control(parent: elf_header_frame, position: (0, 0), size: (600, 348), item_count: 1, list_style: ListViewStyle::Detailed, flags: "VISIBLE | SINGLE_SELECTION | ALWAYS_SHOW_SELECTION", ex_flags: EX_FLAGS)]
-    #[nwg_events(OnListViewClick: [ElfExplorer::elf_header_select_event])]
+    #[nwg_events(OnListViewItemChanged: [ElfExplorer::elf_header_select_event])]
     elf_header_list: nwg::ListView,
 
     // e_ident view
@@ -83,7 +83,7 @@ pub struct ElfExplorer {
     e_ident_layout: nwg::DynLayout,
 
     #[nwg_control(parent: e_ident_frame, position: (0, 0), size: (600, 232), item_count: 1, list_style: ListViewStyle::Detailed, flags: "VISIBLE | SINGLE_SELECTION | ALWAYS_SHOW_SELECTION",  ex_flags: EX_FLAGS)]
-    #[nwg_events(OnListViewClick: [ElfExplorer::e_ident_select_event])]
+    #[nwg_events(OnListViewItemChanged: [ElfExplorer::e_ident_select_event])]
     e_ident_list: nwg::ListView,
 
     // Program header table view
@@ -94,7 +94,7 @@ pub struct ElfExplorer {
     pheaders_layout: nwg::DynLayout,
 
     #[nwg_control(parent: pheaders_frame, position: (0, 0), size: (600, 348), item_count: 1, list_style: ListViewStyle::Detailed, flags: "VISIBLE | SINGLE_SELECTION | ALWAYS_SHOW_SELECTION", ex_flags: EX_FLAGS)]
-    #[nwg_events(OnListViewClick: [ElfExplorer::pheaders_select_event])]
+    #[nwg_events(OnListViewItemChanged: [ElfExplorer::pheaders_select_event])]
     pheaders_list: nwg::ListView,
 
     // phdr view
@@ -105,7 +105,7 @@ pub struct ElfExplorer {
     phdr_layout: nwg::DynLayout,
 
     #[nwg_control(parent: phdr_frame, position: (0, 0), size: (600, 232), item_count: 1, list_style: ListViewStyle::Detailed, flags: "VISIBLE | SINGLE_SELECTION | ALWAYS_SHOW_SELECTION",  ex_flags: EX_FLAGS)]
-    #[nwg_events(OnListViewClick: [ElfExplorer::phdr_select_event])]
+    #[nwg_events(OnListViewItemChanged: [ElfExplorer::phdr_select_event])]
     phdr_list: nwg::ListView,
 
     // Section header table view
@@ -116,7 +116,7 @@ pub struct ElfExplorer {
     sheaders_layout: nwg::DynLayout,
 
     #[nwg_control(parent: sheaders_frame, position: (0, 0), size: (600, 348), item_count: 1, list_style: ListViewStyle::Detailed, flags: "VISIBLE | SINGLE_SELECTION | ALWAYS_SHOW_SELECTION", ex_flags: EX_FLAGS)]
-    #[nwg_events(OnListViewClick: [ElfExplorer::sheaders_select_event])]
+    #[nwg_events(OnListViewItemChanged: [ElfExplorer::sheaders_select_event])]
     sheaders_list: nwg::ListView,
 
     // shdr view
@@ -127,7 +127,7 @@ pub struct ElfExplorer {
     shdr_layout: nwg::DynLayout,
 
     #[nwg_control(parent: shdr_frame, position: (0, 0), size: (600, 232), item_count: 1, list_style: ListViewStyle::Detailed, flags: "VISIBLE | SINGLE_SELECTION | ALWAYS_SHOW_SELECTION", ex_flags: EX_FLAGS)]
-    #[nwg_events(OnListViewClick: [ElfExplorer::shdr_select_event])]
+    #[nwg_events(OnListViewItemChanged: [ElfExplorer::shdr_select_event])]
     shdr_list: nwg::ListView
 }
 
