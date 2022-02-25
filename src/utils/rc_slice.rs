@@ -5,8 +5,8 @@ use crate::elf::{ElfNAddr, ElfNOff};
 
 pub struct RcSlice<T> {
     rc: Rc<Vec<T>>,
-    start: usize,
-    end: usize,
+    pub start: usize,
+    pub end: usize,
 }
 
 impl<T> RcSlice<T> {

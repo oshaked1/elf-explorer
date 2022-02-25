@@ -1,4 +1,4 @@
-use crate::utils::RcSlice;
+use crate::utils::{RcSlice, self};
 use super::{ElfNAddr, ElfNOff, Description, ElfHeader};
 
 pub struct SectionHeaderTable {
@@ -92,10 +92,17 @@ impl SectionHeaderTable {
                 let strtab_hdr = &self.shdrs64.as_ref().unwrap()[hdr.e_shstrndx as usize];
                 let offset = strtab_hdr.sh_offset.to_usize();
                 let size = strtab_hdr.sh_size as usize;
-                let strtab = &filedata.get()[offset..offset + size];
+                let strtab;
+                if size != 0 {
+                    strtab = &filedata.get()[offset..offset + size];
+                }
+                // some ELF files have a valid string table but the length specified in the header is 0
+                else {
+                    strtab = &filedata.get()[offset..filedata.end];
+                }
                 for shdr in self.shdrs64.as_mut().unwrap() {
                     let offset = shdr.sh_name as usize;
-                    if let Ok(string) = std::str::from_utf8(&strtab[offset..]) {
+                    if let Ok(string) = utils::raw_to_str(&strtab[offset..]) {
                         shdr.name = Some(string.to_owned());
                     }
                 }
@@ -104,10 +111,16 @@ impl SectionHeaderTable {
                 let strtab_hdr = &self.shdrs32.as_ref().unwrap()[hdr.e_shstrndx as usize];
                 let offset = strtab_hdr.sh_offset.to_usize();
                 let size = strtab_hdr.sh_size as usize;
-                let strtab = &filedata.get()[offset..offset + size];
+                let strtab;
+                if size != 0 {
+                    strtab = &filedata.get()[offset..offset + size];
+                }
+                else {
+                    strtab = &filedata.get()[offset..filedata.end];
+                }
                 for shdr in self.shdrs32.as_mut().unwrap() {
                     let offset = shdr.sh_name as usize;
-                    if let Ok(string) = std::str::from_utf8(&strtab[offset..]) {
+                    if let Ok(string) = utils::raw_to_str(&strtab[offset..]) {
                         shdr.name = Some(string.to_owned());
                     }
                 }
