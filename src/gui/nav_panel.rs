@@ -29,11 +29,19 @@ impl super::ElfExplorer {
             text: Some("Program Headers".to_owned())
         };
         self.nav_panel_list.insert_item(pheaders);
+
+        let sheaders = nwg::InsertListViewItem {
+            index: Some(2),
+            column_index: 0,
+            text: Some("Section Headers".to_owned())
+        };
+        self.nav_panel_list.insert_item(sheaders);
     }
 
     pub fn set_all_frames_invisible(&self) {
         self.elf_header_frame.set_visible(false);
         self.pheaders_frame.set_visible(false);
+        self.sheaders_frame.set_visible(false);
     }
 
     pub fn nav_panel_select_event(&self) {
@@ -61,6 +69,16 @@ impl super::ElfExplorer {
                     self.set_all_frames_invisible();
                     self.pheaders_frame.set_visible(true);
                     set("Program headers contain segments which describe the memory layout of the program and are necessary for loading it");
+                }
+                2 => {
+                    if !self.sheaders_frame.visible() {
+                        self.sheaders_reset();
+                        let elf = self.elf.borrow();
+                        self.sheaders_populate(&elf.as_ref().unwrap())
+                    }
+                    self.set_all_frames_invisible();
+                    self.sheaders_frame.set_visible(true);
+                    set("Section headers contain linking and debugging information");
                 }
                 _ => set("")
             }

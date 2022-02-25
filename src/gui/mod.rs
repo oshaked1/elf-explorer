@@ -14,6 +14,7 @@ use crate::elf;
 mod nav_panel;
 mod elf_header;
 mod pheaders;
+mod sheaders;
 
 // GRID, FULL_ROW_SELECT
 const EX_FLAGS: nwg::ListViewExFlags = nwg::ListViewExFlags::from_bits_truncate(nwg::ListViewExFlags::GRID.bits() | nwg::ListViewExFlags::FULL_ROW_SELECT.bits());
@@ -89,7 +90,7 @@ pub struct ElfExplorer {
     #[nwg_control(position: (200, 0), size: (600, 580), flags: "NONE")]
     pheaders_frame: nwg::Frame,
     
-    #[nwg_layout(parent: elf_header_frame)]
+    #[nwg_layout(parent: pheaders_frame)]
     pheaders_layout: nwg::DynLayout,
 
     #[nwg_control(parent: pheaders_frame, position: (0, 0), size: (600, 348), item_count: 1, list_style: ListViewStyle::Detailed, flags: "VISIBLE | SINGLE_SELECTION | ALWAYS_SHOW_SELECTION", ex_flags: EX_FLAGS)]
@@ -105,7 +106,29 @@ pub struct ElfExplorer {
 
     #[nwg_control(parent: phdr_frame, position: (0, 0), size: (600, 232), item_count: 1, list_style: ListViewStyle::Detailed, flags: "VISIBLE | SINGLE_SELECTION | ALWAYS_SHOW_SELECTION",  ex_flags: EX_FLAGS)]
     #[nwg_events(OnListViewClick: [ElfExplorer::phdr_select_event])]
-    phdr_list: nwg::ListView
+    phdr_list: nwg::ListView,
+
+    // Section header table view
+    #[nwg_control(position: (200, 0), size: (600, 580), flags: "NONE")]
+    sheaders_frame: nwg::Frame,
+
+    #[nwg_layout(parent: sheaders_frame)]
+    sheaders_layout: nwg::DynLayout,
+
+    #[nwg_control(parent: sheaders_frame, position: (0, 0), size: (600, 348), item_count: 1, list_style: ListViewStyle::Detailed, flags: "VISIBLE | SINGLE_SELECTION | ALWAYS_SHOW_SELECTION", ex_flags: EX_FLAGS)]
+    #[nwg_events(OnListViewClick: [ElfExplorer::sheaders_select_event])]
+    sheaders_list: nwg::ListView,
+
+    // shdr view
+    #[nwg_control(parent: sheaders_frame, position: (0, 348), size: (600, 232), flags: "NONE")]
+    shdr_frame: nwg::Frame,
+
+    #[nwg_layout(parent: shdr_frame)]
+    shdr_layout: nwg::DynLayout,
+
+    #[nwg_control(parent: shdr_frame, position: (0, 0), size: (600, 232), item_count: 1, list_style: ListViewStyle::Detailed, flags: "VISIBLE | SINGLE_SELECTION | ALWAYS_SHOW_SELECTION", ex_flags: EX_FLAGS)]
+    #[nwg_events(OnListViewClick: [ElfExplorer::shdr_select_event])]
+    shdr_list: nwg::ListView
 }
 
 impl ElfExplorer {
@@ -115,6 +138,7 @@ impl ElfExplorer {
         self.nav_panel_frame.set_visible(false);
         self.elf_header_frame.set_visible(false);
         self.pheaders_frame.set_visible(false);
+        self.sheaders_frame.set_visible(false);
 
         self.field_desc_frame.set_visible(true);
 
@@ -124,11 +148,13 @@ impl ElfExplorer {
         self.main_layout.add_child((0, 100), (100, 0), &self.field_desc_frame);
         self.main_layout.add_child((0, 0), (100, 100), &self.elf_header_frame);
         self.main_layout.add_child((0, 0), (100, 100), &self.pheaders_frame);
+        self.main_layout.add_child((0, 0), (100, 100), &self.sheaders_frame);
 
         self.nav_panel_init();
         self.field_desc.init(&self.field_desc_frame);
         self.elf_header_init();
         self.pheaders_init();
+        self.sheaders_init();
     }
 
     fn init_elf_view(&self) {

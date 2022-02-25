@@ -127,7 +127,13 @@ impl Description for SHType {
             8 => "NOBITS".to_owned(),
             9 => "REL".to_owned(),
             10 => "SHLIB".to_owned(),
-            11 => "DYNSYM".to_owned(),            
+            11 => "DYNSYM".to_owned(),
+            14 => "INIT_ARRAY".to_owned(),
+            15 => "FINI_ARRAY".to_owned(),
+            0x6ffffff6 => "GNU_HASH".to_owned(),
+            0x6ffffffd => "VERDEF".to_owned(),
+            0x6ffffffe => "VERNEED".to_owned(),
+            0x6fffffff => "VERSYM".to_owned(),
             other => format!("<unknown: 0x{:x}>", other)
         }
     }
