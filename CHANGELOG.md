@@ -11,7 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Fixed
 
-- Using arrow keys for navigation now works as intended (#1).
+- Using arrow keys for navigation now works as intended ([#1](https://github.com/oshaked1/elf-explorer/issues/1)).
 
 ## [[0.3.0]](https://github.com/oshaked1/elf-explorer/compare/v0.2.0...v0.3.0) - 2022-02-19
 
