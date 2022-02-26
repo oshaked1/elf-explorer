@@ -6,7 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-native-windows-gui = {version="1.0.12", default-features=false, features=["dynamic_layout", "frame", "menu", "file-dialog", "list-view", "embed-resource", "textbox"]}
+native-windows-gui = {version="1.0.12", default-features=false, features=["dynamic_layout", "frame", "menu", "file-dialog", "list-view", "embed-resource", "textbox", "tree-view"]}
 native-windows-derive = "1.0.3"
 byteorder = "1.4.3"
 

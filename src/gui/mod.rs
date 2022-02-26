@@ -60,9 +60,9 @@ pub struct ElfExplorer {
     #[nwg_layout(parent: nav_panel_frame)]
     nav_panel_layout: nwg::DynLayout,
 
-    #[nwg_control(parent: nav_panel_frame, position: (0, 0), size: (200, 580), item_count: 1, list_style: ListViewStyle::Detailed, flags: "VISIBLE | SINGLE_SELECTION | ALWAYS_SHOW_SELECTION",  ex_flags: nwg::ListViewExFlags::FULL_ROW_SELECT)]
-    #[nwg_events(OnListViewItemChanged: [ElfExplorer::nav_panel_select_event])]
-    nav_panel_list: nwg::ListView,
+    #[nwg_control(parent: nav_panel_frame, position: (0, 0), size: (200, 580))]
+    #[nwg_events(OnTreeItemSelectionChanged: [ElfExplorer::nav_panel_select_event])]
+    nav_panel_tree: nwg::TreeView,
 
     // ELF header view
     #[nwg_control(position: (200, 0), size: (600, 580), flags: "NONE")]
@@ -158,7 +158,10 @@ impl ElfExplorer {
     }
 
     fn init_elf_view(&self) {
-        self.nav_panel_list.select_item(0, true);
+        if let Some(root) = self.nav_panel_tree.root() {
+            self.nav_panel_tree.select_item(&root);
+        }
+
         self.set_all_frames_invisible();
         self.elf_header_frame.set_visible(true);
         self.nav_panel_frame.set_visible(true);

@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [[Unreleased]](https://github.com/oshaked1/elf-explorer/compare/v0.4.0...HEAD)
 
+### Changed
+
+- Navigation panel is now a tree view instead of a list.
+
 ## [[0.4.0]](https://github.com/oshaked1/elf-explorer/compare/v0.3.0...v0.4.0) - 2022-02-25
 
 ### Added

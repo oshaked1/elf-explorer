@@ -3,39 +3,26 @@ use native_windows_gui as nwg;
 // Nav panel methods
 impl super::ElfExplorer {
     pub fn nav_panel_init(&self) {
-        self.nav_panel_layout.add_child((0, 0), (0, 100), &self.nav_panel_list);
+        self.nav_panel_layout.add_child((0, 0), (0, 100), &self.nav_panel_tree);
         self.nav_panel_init_items();
+
+        let mut font = nwg::Font::default();
+
+        nwg::Font::builder()
+            .family("MS Shell Dlg")
+            .size(16)
+            .build(&mut font)
+            .expect("Failed to build font");
+        
+        self.nav_panel_tree.set_font(Some(&font));
     }
 
     fn nav_panel_init_items(&self) {
-        let col = nwg::InsertListViewColumn {
-            index: None,
-            fmt: None,
-            width: Some(195),
-            text: None
-        };
-        self.nav_panel_list.insert_column(col);
+        let tv = &self.nav_panel_tree;
 
-        let elf_header = nwg::InsertListViewItem {
-            index: Some(0),
-            column_index: 0,
-            text: Some("ELF Header".to_owned())
-        };
-        self.nav_panel_list.insert_item(elf_header);
-
-        let pheaders = nwg::InsertListViewItem {
-            index: Some(1),
-            column_index: 0,
-            text: Some("Program Headers".to_owned())
-        };
-        self.nav_panel_list.insert_item(pheaders);
-
-        let sheaders = nwg::InsertListViewItem {
-            index: Some(2),
-            column_index: 0,
-            text: Some("Section Headers".to_owned())
-        };
-        self.nav_panel_list.insert_item(sheaders);
+        tv.insert_item("ELF Header", None, nwg::TreeInsert::Root);
+        tv.insert_item("Program Headers", None, nwg::TreeInsert::Root);
+        tv.insert_item("Section Headers", None, nwg::TreeInsert::Root);
     }
 
     pub fn set_all_frames_invisible(&self) {
@@ -45,43 +32,53 @@ impl super::ElfExplorer {
     }
 
     pub fn nav_panel_select_event(&self) {
-        if let Some(item) = self.nav_panel_list.selected_item() {
-            // create a shortcut to the function which sets the field description
-            let set = |text: &str| self.field_desc.set(text);
+        let item = self.nav_panel_tree.selected_item();
+        if let None = item {
+            return;
+        }
+        let item = item.unwrap();
 
-            match item {
-                0 => {
-                    if !self.elf_header_frame.visible() {
-                        self.elf_header_reset();
-                        let elf = self.elf.borrow();
-                        self.elf_header_populate(&elf.as_ref().unwrap())
-                    }
-                    self.set_all_frames_invisible();
-                    self.elf_header_frame.set_visible(true);
-                    set("The ELF header contains general information as well as the locations of the program and section header tables");
+        // create a shortcut to the function which sets the field description
+        let set = |text: &str| self.field_desc.set(text);
+
+        let text = self.nav_panel_tree.item_text(&item);
+        if let None = text {
+            return;
+        }
+        let text = text.unwrap();
+
+        match &text[..] {
+            "ELF Header" => {
+                if !self.elf_header_frame.visible() {
+                    self.elf_header_reset();
+                    let elf = self.elf.borrow();
+                    self.elf_header_populate(&elf.as_ref().unwrap())
                 }
-                1 => {
-                    if !self.pheaders_frame.visible() {
-                        self.pheaders_reset();
-                        let elf = self.elf.borrow();
-                        self.pheaders_populate(&elf.as_ref().unwrap())
-                    }
-                    self.set_all_frames_invisible();
-                    self.pheaders_frame.set_visible(true);
-                    set("Program headers contain segments which describe the memory layout of the program and are necessary for loading it");
-                }
-                2 => {
-                    if !self.sheaders_frame.visible() {
-                        self.sheaders_reset();
-                        let elf = self.elf.borrow();
-                        self.sheaders_populate(&elf.as_ref().unwrap())
-                    }
-                    self.set_all_frames_invisible();
-                    self.sheaders_frame.set_visible(true);
-                    set("Section headers contain linking and debugging information");
-                }
-                _ => set("")
+                self.set_all_frames_invisible();
+                self.elf_header_frame.set_visible(true);
+                set("The ELF header contains general information as well as the locations of the program and section header tables");
             }
+            "Program Headers" => {
+                if !self.pheaders_frame.visible() {
+                    self.pheaders_reset();
+                    let elf = self.elf.borrow();
+                    self.pheaders_populate(&elf.as_ref().unwrap())
+                }
+                self.set_all_frames_invisible();
+                self.pheaders_frame.set_visible(true);
+                set("Program headers contain segments which describe the memory layout of the program and are necessary for loading it");
+            }
+            "Section Headers" => {
+                if !self.sheaders_frame.visible() {
+                    self.sheaders_reset();
+                    let elf = self.elf.borrow();
+                    self.sheaders_populate(&elf.as_ref().unwrap())
+                }
+                self.set_all_frames_invisible();
+                self.sheaders_frame.set_visible(true);
+                set("Section headers contain linking and debugging information");
+            }
+            _ => set("")
         }
     }
 }
