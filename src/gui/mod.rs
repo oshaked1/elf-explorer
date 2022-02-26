@@ -158,6 +158,11 @@ impl ElfExplorer {
     }
 
     fn init_elf_view(&self) {
+        let elf = self.elf.borrow();
+        let elf = elf.as_ref().unwrap();
+
+        self.nav_panel_init_items(elf);
+
         if let Some(root) = self.nav_panel_tree.root() {
             self.nav_panel_tree.select_item(&root);
         }
@@ -167,8 +172,7 @@ impl ElfExplorer {
         self.nav_panel_frame.set_visible(true);
 
         self.elf_header_reset();
-        let elf = self.elf.borrow();
-        self.elf_header_populate(&elf.as_ref().unwrap());
+        self.elf_header_populate(elf);
         self.elf_header_frame.set_visible(true);
 
         self.field_desc.set("Select any item to display a brief explanation");

@@ -1,28 +1,31 @@
 use native_windows_gui as nwg;
 
+use crate::elf::Elf;
+
 // Nav panel methods
 impl super::ElfExplorer {
     pub fn nav_panel_init(&self) {
         self.nav_panel_layout.add_child((0, 0), (0, 100), &self.nav_panel_tree);
-        self.nav_panel_init_items();
 
         let mut font = nwg::Font::default();
 
         nwg::Font::builder()
             .family("MS Shell Dlg")
-            .size(16)
+            .size(15)
             .build(&mut font)
             .expect("Failed to build font");
         
         self.nav_panel_tree.set_font(Some(&font));
     }
 
-    fn nav_panel_init_items(&self) {
+    pub fn nav_panel_init_items(&self, elf: &Elf) {
         let tv = &self.nav_panel_tree;
 
         tv.insert_item("ELF Header", None, nwg::TreeInsert::Root);
         tv.insert_item("Program Headers", None, nwg::TreeInsert::Root);
-        tv.insert_item("Section Headers", None, nwg::TreeInsert::Root);
+        let sheaders = tv.insert_item("Section Headers", None, nwg::TreeInsert::Root);
+
+        self.sheaders_init_navigation_items(&sheaders, elf);
     }
 
     pub fn set_all_frames_invisible(&self) {

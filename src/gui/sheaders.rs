@@ -1,4 +1,5 @@
 use native_windows_gui as nwg;
+use nwg::TreeItem;
 
 use crate::elf::{Elf, Description, SectionHeader32, SectionHeader64, ElfNOff, ElfNAddr};
 use crate::{utils, descriptive_field, address_field, offset_field, size_field, decimal_field, hex_field};
@@ -13,6 +14,37 @@ impl super::ElfExplorer {
         self.shdr_frame.set_visible(false);
         self.sheaders_layout.add_child((0, 60), (100, 40), &self.shdr_frame);
         self.shdr_init();
+    }
+
+    pub fn sheaders_init_navigation_items(&self, parent: &TreeItem, elf: &Elf) {
+        let tree= &self.nav_panel_tree;
+
+        match elf.is_64_bit() {
+            true => {
+                for (i, shdr) in elf.shdr_table.shdrs64.as_ref().unwrap().iter().enumerate() {
+                    let name;
+                    if let None = shdr.name {
+                        name = "UNKNOWN";
+                    }
+                    else {
+                        name = shdr.name.as_ref().unwrap();
+                    }
+                    tree.insert_item(&format!("{}: {}", i, name), Some(parent), nwg::TreeInsert::Last);
+                }
+            }
+            false => {
+                for (i, shdr) in elf.shdr_table.shdrs32.as_ref().unwrap().iter().enumerate() {
+                    let name;
+                    if let None = shdr.name {
+                        name = "UNKNOWN";
+                    }
+                    else {
+                        name = shdr.name.as_ref().unwrap();
+                    }
+                    tree.insert_item(&format!("{}: {}", i, name), Some(parent), nwg::TreeInsert::Last);
+                }
+            }
+        }
     }
 
     fn sheaders_init_colummns(&self) {
