@@ -20,6 +20,7 @@ impl super::ElfExplorer {
 
     pub fn nav_panel_init_items(&self, elf: &Elf) {
         let tv = &self.nav_panel_tree;
+        tv.clear();
 
         tv.insert_item("ELF Header", None, nwg::TreeInsert::Root);
         tv.insert_item("Program Headers", None, nwg::TreeInsert::Root);
