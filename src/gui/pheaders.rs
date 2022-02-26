@@ -25,7 +25,7 @@ impl super::ElfExplorer {
         let type_col = nwg::InsertListViewColumn {
             index: Some(1),
             fmt: None,
-            width: Some(495),
+            width: Some(480),
             text: Some("Type".to_owned())
         };
         self.pheaders_list.insert_column(index_col);
