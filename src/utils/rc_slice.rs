@@ -29,6 +29,12 @@ impl<T> RcSlice<T> {
     }
 }
 
+impl<T> Clone for RcSlice<T> {
+    fn clone(&self) -> Self {
+        Self { rc: self.rc.clone(), start: self.start, end: self.end }
+    }
+}
+
 impl RcSlice<u8> {
     pub fn read_u16(&self, offset: usize, is_little_endian: bool) -> u16 {
         match is_little_endian {

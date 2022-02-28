@@ -15,6 +15,7 @@ mod nav_panel;
 mod elf_header;
 mod pheaders;
 mod sheaders;
+mod sections;
 
 // GRID, FULL_ROW_SELECT
 const EX_FLAGS: nwg::ListViewExFlags = nwg::ListViewExFlags::from_bits_truncate(nwg::ListViewExFlags::GRID.bits() | nwg::ListViewExFlags::FULL_ROW_SELECT.bits());
@@ -128,17 +129,21 @@ pub struct ElfExplorer {
 
     #[nwg_control(parent: shdr_frame, position: (0, 0), size: (600, 232), item_count: 1, list_style: ListViewStyle::Detailed, flags: "VISIBLE | SINGLE_SELECTION | ALWAYS_SHOW_SELECTION", ex_flags: EX_FLAGS)]
     #[nwg_events(OnListViewItemChanged: [ElfExplorer::shdr_select_event])]
-    shdr_list: nwg::ListView
+    shdr_list: nwg::ListView,
+
+    // Unimplemented view
+    #[nwg_control(position: (200, 0), size: (600, 580), flags: "NONE")]
+    unimplemented_frame: nwg::Frame,
+
+    #[nwg_control(parent: unimplemented_frame, position: (0, 0), size: (600, 580), readonly: true, flags: "VISIBLE | DISABLED")]
+    unimplemented_message: nwg::TextBox
 }
 
 impl ElfExplorer {
     fn init(&self) {
         self.window.set_icon(self.embed.icon_str("MAINICON", None).as_ref());
         
-        self.nav_panel_frame.set_visible(false);
-        self.elf_header_frame.set_visible(false);
-        self.pheaders_frame.set_visible(false);
-        self.sheaders_frame.set_visible(false);
+        self.set_all_frames_invisible();
 
         self.field_desc_frame.set_visible(true);
 
@@ -149,12 +154,22 @@ impl ElfExplorer {
         self.main_layout.add_child((0, 0), (100, 100), &self.elf_header_frame);
         self.main_layout.add_child((0, 0), (100, 100), &self.pheaders_frame);
         self.main_layout.add_child((0, 0), (100, 100), &self.sheaders_frame);
+        self.main_layout.add_child((0, 0), (100, 100), &self.unimplemented_frame);
 
         self.nav_panel_init();
         self.field_desc.init(&self.field_desc_frame);
         self.elf_header_init();
         self.pheaders_init();
         self.sheaders_init();
+        self.unimplemented_init();
+    }
+
+    pub fn set_all_frames_invisible(&self) {
+        self.elf_header_frame.set_visible(false);
+        self.pheaders_frame.set_visible(false);
+        self.sheaders_frame.set_visible(false);
+        self.unimplemented_frame.set_visible(false);
+        self.unimplemented_message.set_text("This feature is not implemented yet.");
     }
 
     fn init_elf_view(&self) {
@@ -257,6 +272,16 @@ impl ElfExplorer {
         let filename = fullpath.split("\\").last().unwrap();
         self.window
             .set_text(&format!("ELF Explorer - {}", filename));
+    }
+
+    fn unimplemented_init(&self) {
+        let mut font = nwg::Font::default();
+        nwg::Font::builder()
+            .family("MS Shell Dlg")
+            .size(20)
+            .build(&mut font)
+            .expect("Failed to build font");
+        self.unimplemented_message.set_font(Some(&font));
     }
 }
 

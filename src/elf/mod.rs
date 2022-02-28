@@ -6,6 +6,8 @@ mod program_headers;
 pub use program_headers::*;
 mod section_headers;
 pub use section_headers::*;
+pub mod sections;
+use sections::Sections;
 
 const ELF_HDR_MAX_SIZE: usize = 64;
 
@@ -18,7 +20,8 @@ pub struct Elf {
     is_64_bit: bool,
     pub hdr: ElfHeader,
     pub phdr_table: ProgramHeaderTable,
-    pub shdr_table: SectionHeaderTable
+    pub shdr_table: SectionHeaderTable,
+    pub sections: Sections
 }
 
 impl Elf {
@@ -29,12 +32,14 @@ impl Elf {
         let is_little_endian = hdr.is_little_endian();
         let is_64_bit = hdr.is_64_bit();
 
-        let phdr_table = ProgramHeaderTable::from(RcSlice::from(&raw, 0, len), &hdr);
-        let mut shdr_table = SectionHeaderTable::from(RcSlice::from(&raw, 0, len), &hdr);
+        let phdr_table = ProgramHeaderTable::from(raw.clone(), &hdr);
+        let mut shdr_table = SectionHeaderTable::from(raw.clone(), &hdr);
 
         shdr_table.populate_names(RcSlice::from(&raw, 0, len), &hdr);
 
-        Ok(Self { is_little_endian, is_64_bit, hdr, phdr_table, shdr_table })
+        let sections = Sections::from(raw.clone(), &hdr, &shdr_table);
+
+        Ok(Self { is_little_endian, is_64_bit, hdr, phdr_table, shdr_table, sections })
     }
 
     pub fn is_little_endian(&self) -> bool {
