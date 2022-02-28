@@ -5,6 +5,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [[Unreleased]](https://github.com/oshaked1/elf-explorer/compare/v0.4.0...HEAD)
 
+### Added
+
+- Individual sections are listed in the navigation panel under **Section Headers**.
+- Selecting sections of type **STRTAB** from the navigation panel displays a list of strings in the string table.
+
 ### Changed
 
 - Navigation panel is now a tree view instead of a list.
