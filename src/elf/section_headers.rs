@@ -102,7 +102,7 @@ impl SectionHeaderTable {
                 }
                 for shdr in self.shdrs64.as_mut().unwrap() {
                     let offset = shdr.sh_name as usize;
-                    if let Ok(string) = utils::raw_to_str(&strtab[offset..]) {
+                    if let Ok(string) = utils::raw_to_str(&strtab[offset..]).1 {
                         shdr.name = Some(string.to_owned());
                     }
                 }
@@ -120,7 +120,7 @@ impl SectionHeaderTable {
                 }
                 for shdr in self.shdrs32.as_mut().unwrap() {
                     let offset = shdr.sh_name as usize;
-                    if let Ok(string) = utils::raw_to_str(&strtab[offset..]) {
+                    if let Ok(string) = utils::raw_to_str(&strtab[offset..]).1 {
                         shdr.name = Some(string.to_owned());
                     }
                 }

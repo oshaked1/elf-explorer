@@ -31,9 +31,9 @@ pub fn u64_to_hex(val: u64, is_little_endian: bool) -> String {
     raw_to_hex(&mut buf)
 }
 
-pub fn raw_to_str(raw: &[u8]) -> Result<&str, std::str::Utf8Error> {
+pub fn raw_to_str(raw: &[u8]) -> (usize, Result<&str, std::str::Utf8Error>) {
     let nul_range_end = raw.iter()
         .position(|&c| c == b'\0')
         .unwrap_or(raw.len()); // default to length if no `\0` present
-    ::std::str::from_utf8(&raw[0..nul_range_end])
+    (nul_range_end, ::std::str::from_utf8(&raw[0..nul_range_end]))
 }

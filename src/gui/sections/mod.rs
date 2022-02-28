@@ -2,6 +2,9 @@ use native_windows_gui as nwg;
 use nwg::TreeItem;
 
 use crate::elf::Elf;
+use crate::elf::sections::SectionType;
+
+mod strtab;
 
 impl super::ElfExplorer {
     pub fn section_nav_select_event(&self, item: &TreeItem, elf: &Elf) {
@@ -19,14 +22,21 @@ impl super::ElfExplorer {
 
         let index = text.split(":").collect::<Vec<&str>>()[0].parse::<usize>().unwrap();
         let section = &elf.sections.0[index];
-        match section.section_type {
-            _ => {
-                if let Some(name) = &section.name {
-                    set(&format!("{} section", name));
-                }
-                else {
-                    set("Unknown section");
-                }
+
+        if let Some(name) = &section.name {
+            set(&format!("{} section", name));
+        }
+        else {
+            set("Unknown section");
+        }
+
+        match &section.section_type {
+            SectionType::Strtab(strtab) => {
+                self.set_all_frames_invisible();
+                self.strtab_populate(strtab);
+                self.strtab_frame.set_visible(true);
+            }
+            SectionType::Generic => {
                 self.section_unimplemented(&section.type_name());
             }
         }

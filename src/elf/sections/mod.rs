@@ -4,7 +4,6 @@ pub use strtab::*;
 use crate::utils::RcSlice;
 use super::{ElfHeader, SectionHeaderTable, SHType, Description};
 
-#[derive(Debug)]
 pub enum SectionType {
     Generic,
     Strtab(StrtabSection)

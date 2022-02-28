@@ -65,6 +65,13 @@ pub struct ElfExplorer {
     #[nwg_events(OnTreeItemSelectionChanged: [ElfExplorer::nav_panel_select_event])]
     nav_panel_tree: nwg::TreeView,
 
+    // Unimplemented view
+    #[nwg_control(position: (200, 0), size: (600, 580), flags: "NONE")]
+    unimplemented_frame: nwg::Frame,
+
+    #[nwg_control(parent: unimplemented_frame, position: (0, 0), size: (600, 580), readonly: true, flags: "VISIBLE | DISABLED")]
+    unimplemented_message: nwg::TextBox,
+
     // ELF header view
     #[nwg_control(position: (200, 0), size: (600, 580), flags: "NONE")]
     elf_header_frame: nwg::Frame,
@@ -131,12 +138,12 @@ pub struct ElfExplorer {
     #[nwg_events(OnListViewItemChanged: [ElfExplorer::shdr_select_event])]
     shdr_list: nwg::ListView,
 
-    // Unimplemented view
+    // Strtab section view
     #[nwg_control(position: (200, 0), size: (600, 580), flags: "NONE")]
-    unimplemented_frame: nwg::Frame,
+    strtab_frame: nwg::Frame,
 
-    #[nwg_control(parent: unimplemented_frame, position: (0, 0), size: (600, 580), readonly: true, flags: "VISIBLE | DISABLED")]
-    unimplemented_message: nwg::TextBox
+    #[nwg_control(parent: strtab_frame, position: (0, 0), size: (600, 580), item_count: 1, list_style: ListViewStyle::Detailed, flags: "VISIBLE", ex_flags: EX_FLAGS)]
+    strtab_list: nwg::ListView
 }
 
 impl ElfExplorer {
@@ -149,27 +156,34 @@ impl ElfExplorer {
 
         self.field_desc.set("Open a file using the top menu, or by dragging it into the window");
 
+        self.init_views();
+    }
+
+    fn init_views(&self) {
         self.main_layout.add_child((0, 0), (0, 100), &self.nav_panel_frame);
         self.main_layout.add_child((0, 100), (100, 0), &self.field_desc_frame);
         self.main_layout.add_child((0, 0), (100, 100), &self.elf_header_frame);
         self.main_layout.add_child((0, 0), (100, 100), &self.pheaders_frame);
         self.main_layout.add_child((0, 0), (100, 100), &self.sheaders_frame);
         self.main_layout.add_child((0, 0), (100, 100), &self.unimplemented_frame);
+        self.main_layout.add_child((0, 0), (100, 100), &self.strtab_frame);
 
         self.nav_panel_init();
         self.field_desc.init(&self.field_desc_frame);
+        self.unimplemented_init();
         self.elf_header_init();
         self.pheaders_init();
         self.sheaders_init();
-        self.unimplemented_init();
+        self.strtab_init();
     }
 
     pub fn set_all_frames_invisible(&self) {
+        self.unimplemented_frame.set_visible(false);
+        self.unimplemented_message.set_text("This feature is not implemented yet.");
         self.elf_header_frame.set_visible(false);
         self.pheaders_frame.set_visible(false);
         self.sheaders_frame.set_visible(false);
-        self.unimplemented_frame.set_visible(false);
-        self.unimplemented_message.set_text("This feature is not implemented yet.");
+        self.strtab_frame.set_visible(false);
     }
 
     fn init_elf_view(&self) {
