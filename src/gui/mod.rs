@@ -43,6 +43,13 @@ pub struct ElfExplorer {
     #[nwg_events(OnMenuItemSelected: [ElfExplorer::file_selection])]
     file_open: nwg::MenuItem,
 
+    #[nwg_control(parent: file_menu)]
+    file_separator: nwg::MenuSeparator,
+
+    #[nwg_control(parent: file_menu, text: "Exit")]
+    #[nwg_events(OnMenuItemSelected: [ElfExplorer::exit])]
+    file_exit: nwg::MenuItem,
+
     // File data
     file_name: RefCell<String>,
     elf: RefCell<Option<elf::Elf>>,
