@@ -1,4 +1,4 @@
-use crate::utils::RcSlice;
+use crate::utils::{RcSlice, self};
 use super::{Description, ParsingError, ElfNAddr, ElfNOff};
 
 const EI_NIDENT: usize = 16;
@@ -26,7 +26,7 @@ pub struct ElfHeader {
 impl ElfHeader {
     pub fn from(raw: RcSlice<u8>) -> Result<Self, ParsingError> {
         // extract e_ident
-        let e_ident = EIdent::from(RcSlice::from(&raw, 0, EI_NIDENT));
+        let e_ident = EIdent::from(RcSlice::from(&raw, 0, EI_NIDENT))?;
 
         // determine byte order
         let is_little_endian = match e_ident.ei_data.0 {
@@ -162,8 +162,15 @@ pub struct EIdent {
 }
 
 impl EIdent {
-    pub fn from(raw: RcSlice<u8>) -> Self {
+    pub fn from(raw: RcSlice<u8>) -> Result<Self, ParsingError> {
         let temp = raw.get();
+
+        // make sure magic bytes are correct
+        match &temp[..4] {
+            b"\x7fELF" => (),
+            other => return Err(ParsingError::InvalidMagicBytes(format!("Invalid magic bytes: {}", utils::raw_to_hex(&other))))
+        }
+        
         let ei_mag0 = temp[0];
         let ei_mag1 = temp[1];
         let ei_mag2 = temp[2];
@@ -174,7 +181,7 @@ impl EIdent {
         let ei_osabi = EiOsAbi(temp[7]);
         let ei_abi_version = temp[8];
         let ei_pad = RcSlice::from(&raw, 9, EI_NIDENT);
-        Self {
+        Ok(Self {
             raw,
             ei_mag0,
             ei_mag1,
@@ -186,7 +193,7 @@ impl EIdent {
             ei_osabi,
             ei_abi_version,
             ei_pad,
-        }
+        })
     }
 }
 

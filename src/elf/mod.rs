@@ -95,6 +95,7 @@ impl ElfNOff {
 
 #[derive(Debug)]
 pub enum ParsingError {
+    InvalidMagicBytes(String),
     InvalidByteOrder(String),
     InvalidNativeSize(String)
 }

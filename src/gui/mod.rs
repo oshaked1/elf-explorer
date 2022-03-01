@@ -270,6 +270,7 @@ impl ElfExplorer {
         let elf = match elf::Elf::from(contents) {
             Ok(val) => val,
             Err(err) => match err {
+                elf::ParsingError::InvalidMagicBytes(msg) |
                 elf::ParsingError::InvalidByteOrder(msg) |
                 elf::ParsingError::InvalidNativeSize(msg) => {
                     nwg::modal_error_message(
