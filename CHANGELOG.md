@@ -14,6 +14,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - Navigation panel is now a tree view instead of a list.
 
+### Fixed
+
+- A parsing error is now displayed when a loaded file has invalid magic bytes.
+
 ## [[0.4.0]](https://github.com/oshaked1/elf-explorer/compare/v0.3.0...v0.4.0) - 2022-02-25
 
 ### Added
