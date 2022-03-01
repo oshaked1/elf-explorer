@@ -1,12 +1,12 @@
 mod strtab;
 pub use strtab::*;
 
+use super::{Description, ElfHeader, SHType, SectionHeaderTable};
 use crate::utils::RcSlice;
-use super::{ElfHeader, SectionHeaderTable, SHType, Description};
 
 pub enum SectionType {
     Generic,
-    Strtab(StrtabSection)
+    Strtab(StrtabSection),
 }
 
 pub struct Sections(pub Vec<Section>);
@@ -21,7 +21,7 @@ impl Sections {
                     let index = i;
                     let name = match shdr.name.as_ref() {
                         None => None,
-                        Some(name) => Some(name.to_owned())
+                        Some(name) => Some(name.to_owned()),
                     };
                     let file_offset = shdr.sh_offset.to_usize();
                     let size = shdr.sh_size as usize;
@@ -33,11 +33,18 @@ impl Sections {
                             0 => None,
                             offset => match size {
                                 0 => None,
-                                size => Some(RcSlice::from(&filedata, offset, offset + size))
-                            }
-                        }
+                                size => Some(RcSlice::from(&filedata, offset, offset + size)),
+                            },
+                        },
                     };
-                    sections.push(Section::from(index, name, file_offset, size, &sh_type, data));
+                    sections.push(Section::from(
+                        index,
+                        name,
+                        file_offset,
+                        size,
+                        &sh_type,
+                        data,
+                    ));
                 }
             }
             false => {
@@ -45,7 +52,7 @@ impl Sections {
                     let index = i;
                     let name = match shdr.name.as_ref() {
                         None => None,
-                        Some(name) => Some(name.to_owned())
+                        Some(name) => Some(name.to_owned()),
                     };
                     let file_offset = shdr.sh_offset.to_usize();
                     let size = shdr.sh_size as usize;
@@ -57,11 +64,18 @@ impl Sections {
                             0 => None,
                             offset => match size {
                                 0 => None,
-                                size => Some(RcSlice::from(&filedata, offset, offset + size))
-                            }
-                        }
+                                size => Some(RcSlice::from(&filedata, offset, offset + size)),
+                            },
+                        },
                     };
-                    sections.push(Section::from(index, name, file_offset, size, &sh_type, data));
+                    sections.push(Section::from(
+                        index,
+                        name,
+                        file_offset,
+                        size,
+                        &sh_type,
+                        data,
+                    ));
                 }
             }
         }
@@ -76,20 +90,35 @@ pub struct Section {
     pub size: usize,
     sh_type: SHType,
     pub section_type: SectionType,
-    data: Option<RcSlice<u8>>
+    data: Option<RcSlice<u8>>,
 }
 
 impl Section {
-    fn from(index: usize, name: Option<String>, file_offset: usize, size: usize, sh_type: &super::SHType, data: Option<RcSlice<u8>>) -> Self {
+    fn from(
+        index: usize,
+        name: Option<String>,
+        file_offset: usize,
+        size: usize,
+        sh_type: &super::SHType,
+        data: Option<RcSlice<u8>>,
+    ) -> Self {
         let data_copy = match data.as_ref() {
             None => None,
-            Some(data) => Some(data.clone())
+            Some(data) => Some(data.clone()),
         };
         let section_type = match sh_type.0 {
             3 => SectionType::Strtab(StrtabSection::from(data_copy)),
-            _ => SectionType::Generic
+            _ => SectionType::Generic,
         };
-        Self { index, name, file_offset, size, sh_type: SHType(sh_type.0), section_type, data }
+        Self {
+            index,
+            name,
+            file_offset,
+            size,
+            sh_type: SHType(sh_type.0),
+            section_type,
+            data,
+        }
     }
 
     pub fn type_name(&self) -> String {
@@ -99,7 +128,7 @@ impl Section {
     pub fn data(&self) -> Option<&[u8]> {
         match self.data.as_ref() {
             None => None,
-            Some(data) => Some(data.get())
+            Some(data) => Some(data.get()),
         }
     }
 }

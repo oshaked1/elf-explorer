@@ -1,16 +1,22 @@
+use super::{Description, ElfHeader, ElfNAddr, ElfNOff};
 use crate::utils::RcSlice;
-use super::{ElfNAddr, ElfNOff, Description, ElfHeader};
 
 pub struct ProgramHeaderTable {
     pub phdrs32: Option<Vec<ProgramHeader32>>,
-    pub phdrs64: Option<Vec<ProgramHeader64>>
+    pub phdrs64: Option<Vec<ProgramHeader64>>,
 }
 
 impl ProgramHeaderTable {
     pub fn from(raw: RcSlice<u8>, hdr: &ElfHeader) -> Self {
         match hdr.is_64_bit() {
-            true => Self { phdrs32: None, phdrs64: Some(Self::from_64_bit(raw, hdr)) },
-            false => Self { phdrs32: Some(Self::from_32_bit(raw, hdr)), phdrs64: None }
+            true => Self {
+                phdrs32: None,
+                phdrs64: Some(Self::from_64_bit(raw, hdr)),
+            },
+            false => Self {
+                phdrs32: Some(Self::from_32_bit(raw, hdr)),
+                phdrs64: None,
+            },
         }
     }
 
@@ -22,7 +28,11 @@ impl ProgramHeaderTable {
         let phdrs_raw = RcSlice::from(&raw, start_offset, end_offset);
         let mut phdrs = Vec::new();
         for i in 0..hdr.e_phnum {
-            let temp = RcSlice::from(&phdrs_raw, (i * hdr.e_phentsize) as usize, ((i+1) * hdr.e_phentsize) as usize);
+            let temp = RcSlice::from(
+                &phdrs_raw,
+                (i * hdr.e_phentsize) as usize,
+                ((i + 1) * hdr.e_phentsize) as usize,
+            );
             let p_type = PType(temp.read_u32(0, is_little_endian));
             let p_offset = temp.read_elfn_off(4, is_little_endian, is_64_bit);
             let p_vaddr = temp.read_elfn_addr(8, is_little_endian, is_64_bit);
@@ -39,7 +49,7 @@ impl ProgramHeaderTable {
                 p_filesz,
                 p_memsz,
                 p_flags,
-                p_align
+                p_align,
             });
         }
         phdrs
@@ -53,7 +63,11 @@ impl ProgramHeaderTable {
         let phdrs_raw = RcSlice::from(&raw, start_offset, end_offset);
         let mut phdrs = Vec::new();
         for i in 0..hdr.e_phnum {
-            let temp = RcSlice::from(&phdrs_raw, (i * hdr.e_phentsize) as usize, ((i+1) * hdr.e_phentsize) as usize);
+            let temp = RcSlice::from(
+                &phdrs_raw,
+                (i * hdr.e_phentsize) as usize,
+                ((i + 1) * hdr.e_phentsize) as usize,
+            );
             let p_type = PType(temp.read_u32(0, is_little_endian));
             let p_flags = PFlags(temp.read_u32(4, is_little_endian));
             let p_offset = temp.read_elfn_off(8, is_little_endian, is_64_bit);
@@ -70,7 +84,7 @@ impl ProgramHeaderTable {
                 p_paddr,
                 p_filesz,
                 p_memsz,
-                p_align
+                p_align,
             });
         }
         phdrs
@@ -85,7 +99,7 @@ pub struct ProgramHeader32 {
     pub p_filesz: u32,
     pub p_memsz: u32,
     pub p_flags: PFlags,
-    pub p_align: u32
+    pub p_align: u32,
 }
 
 pub struct ProgramHeader64 {
@@ -96,7 +110,7 @@ pub struct ProgramHeader64 {
     pub p_paddr: ElfNAddr,
     pub p_filesz: u64,
     pub p_memsz: u64,
-    pub p_align: u64
+    pub p_align: u64,
 }
 
 pub struct PType(pub u32);
@@ -116,7 +130,7 @@ impl Description for PType {
             0x6474e551 => "GNU_STACK".to_owned(),
             0x6474e552 => "GNU_RELRO".to_owned(),
             0x6474e553 => "GNU_PROPERTY".to_owned(),
-            other => format!("<unknown: 0x{:x}>", other)
+            other => format!("<unknown: 0x{:x}>", other),
         }
     }
 }

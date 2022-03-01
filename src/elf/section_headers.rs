@@ -1,16 +1,22 @@
-use crate::utils::{RcSlice, self};
-use super::{ElfNAddr, ElfNOff, Description, ElfHeader};
+use super::{Description, ElfHeader, ElfNAddr, ElfNOff};
+use crate::utils::{self, RcSlice};
 
 pub struct SectionHeaderTable {
     pub shdrs32: Option<Vec<SectionHeader32>>,
-    pub shdrs64: Option<Vec<SectionHeader64>>
+    pub shdrs64: Option<Vec<SectionHeader64>>,
 }
 
 impl SectionHeaderTable {
     pub fn from(raw: RcSlice<u8>, hdr: &ElfHeader) -> Self {
         match hdr.is_64_bit() {
-            true => Self { shdrs32: None, shdrs64: Some(Self::from_64_bit(raw, hdr)) },
-            false => Self { shdrs32: Some(Self::from_32_bit(raw, hdr)), shdrs64: None }
+            true => Self {
+                shdrs32: None,
+                shdrs64: Some(Self::from_64_bit(raw, hdr)),
+            },
+            false => Self {
+                shdrs32: Some(Self::from_32_bit(raw, hdr)),
+                shdrs64: None,
+            },
         }
     }
 
@@ -22,7 +28,11 @@ impl SectionHeaderTable {
         let shdrs_raw = RcSlice::from(&raw, start_offset, end_offset);
         let mut shdrs = Vec::new();
         for i in 0..hdr.e_shnum {
-            let temp = RcSlice::from(&shdrs_raw, (i * hdr.e_shentsize) as usize, ((i+1) * hdr.e_shentsize) as usize);
+            let temp = RcSlice::from(
+                &shdrs_raw,
+                (i * hdr.e_shentsize) as usize,
+                ((i + 1) * hdr.e_shentsize) as usize,
+            );
             let sh_name = temp.read_u32(0, is_little_endian);
             let sh_type = SHType(temp.read_u32(4, is_little_endian));
             let sh_flags = SHFlags32(temp.read_u32(8, is_little_endian));
@@ -44,7 +54,7 @@ impl SectionHeaderTable {
                 sh_link,
                 sh_info,
                 sh_addralign,
-                sh_entsize
+                sh_entsize,
             });
         }
         shdrs
@@ -58,7 +68,11 @@ impl SectionHeaderTable {
         let shdrs_raw = RcSlice::from(&raw, start_offset, end_offset);
         let mut shdrs = Vec::new();
         for i in 0..hdr.e_shnum {
-            let temp = RcSlice::from(&shdrs_raw, (i * hdr.e_shentsize) as usize, ((i+1) * hdr.e_shentsize) as usize);
+            let temp = RcSlice::from(
+                &shdrs_raw,
+                (i * hdr.e_shentsize) as usize,
+                ((i + 1) * hdr.e_shentsize) as usize,
+            );
             let sh_name = temp.read_u32(0, is_little_endian);
             let sh_type = SHType(temp.read_u32(4, is_little_endian));
             let sh_flags = SHFlags64(temp.read_u64(8, is_little_endian));
@@ -80,7 +94,7 @@ impl SectionHeaderTable {
                 sh_link,
                 sh_info,
                 sh_addralign,
-                sh_entsize
+                sh_entsize,
             });
         }
         shdrs
@@ -114,8 +128,7 @@ impl SectionHeaderTable {
                 let strtab;
                 if size != 0 {
                     strtab = &filedata.get()[offset..offset + size];
-                }
-                else {
+                } else {
                     strtab = &filedata.get()[offset..filedata.end];
                 }
                 for shdr in self.shdrs32.as_mut().unwrap() {
@@ -140,10 +153,10 @@ pub struct SectionHeader32 {
     pub sh_link: u32,
     pub sh_info: u32,
     pub sh_addralign: u32,
-    pub sh_entsize: u32
+    pub sh_entsize: u32,
 }
 
-pub struct  SectionHeader64 {
+pub struct SectionHeader64 {
     pub name: Option<String>,
     pub sh_name: u32,
     pub sh_type: SHType,
@@ -154,7 +167,7 @@ pub struct  SectionHeader64 {
     pub sh_link: u32,
     pub sh_info: u32,
     pub sh_addralign: u64,
-    pub sh_entsize: u64
+    pub sh_entsize: u64,
 }
 
 pub struct SHType(pub u32);
@@ -180,7 +193,7 @@ impl Description for SHType {
             0x6ffffffd => "VERDEF".to_owned(),
             0x6ffffffe => "VERNEED".to_owned(),
             0x6fffffff => "VERSYM".to_owned(),
-            other => format!("<unknown: 0x{:x}>", other)
+            other => format!("<unknown: 0x{:x}>", other),
         }
     }
 }

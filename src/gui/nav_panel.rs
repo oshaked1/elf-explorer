@@ -6,7 +6,8 @@ use crate::elf::Elf;
 // Nav panel methods
 impl super::ElfExplorer {
     pub fn nav_panel_init(&self) {
-        self.nav_panel_layout.add_child((0, 0), (0, 100), &self.nav_panel_tree);
+        self.nav_panel_layout
+            .add_child((0, 0), (0, 100), &self.nav_panel_tree);
 
         let mut font = nwg::Font::default();
 
@@ -15,7 +16,7 @@ impl super::ElfExplorer {
             .size(15)
             .build(&mut font)
             .expect("Failed to build font");
-        
+
         self.nav_panel_tree.set_font(Some(&font));
     }
 
@@ -49,7 +50,7 @@ impl super::ElfExplorer {
             None => {
                 let text = match self.nav_panel_tree.item_text(&item) {
                     None => return,
-                    Some(text) => text
+                    Some(text) => text,
                 };
 
                 match &text[..] {
@@ -80,18 +81,18 @@ impl super::ElfExplorer {
                         self.sheaders_frame.set_visible(true);
                         set("Section headers contain linking and debugging information");
                     }
-                    _ => set("")
+                    _ => set(""),
                 }
             }
             Some(root) => {
                 let text = match self.nav_panel_tree.item_text(&root) {
                     None => return,
-                    Some(text) => text
+                    Some(text) => text,
                 };
 
                 match &text[..] {
                     "Section Headers" => self.section_nav_select_event(&item, elf),
-                    _ => ()
+                    _ => (),
                 }
             }
         }
@@ -116,7 +117,7 @@ impl super::ElfExplorer {
     fn nav_panel_item_parent(&self, item: &TreeItem, depth: u32) -> Option<TreeItem> {
         let mut current_depth = self.nav_panel_item_depth(item);
         if depth >= current_depth {
-            return None
+            return None;
         }
 
         let mut parent = self.nav_panel_tree.parent(item);

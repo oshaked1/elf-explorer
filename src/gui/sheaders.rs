@@ -1,23 +1,27 @@
 use native_windows_gui as nwg;
 use nwg::TreeItem;
 
-use crate::elf::{Elf, Description, SectionHeader32, SectionHeader64, ElfNOff, ElfNAddr};
-use crate::{utils, descriptive_field, address_field, offset_field, size_field, decimal_field, hex_field};
+use crate::elf::{Description, Elf, ElfNAddr, ElfNOff, SectionHeader32, SectionHeader64};
+use crate::{
+    address_field, decimal_field, descriptive_field, hex_field, offset_field, size_field, utils,
+};
 
 // Section header table methods
 impl super::ElfExplorer {
     pub fn sheaders_init(&self) {
         self.sheaders_list.set_headers_enabled(true);
-        self.sheaders_layout.add_child((0, 0), (100, 60), &self.sheaders_list);
+        self.sheaders_layout
+            .add_child((0, 0), (100, 60), &self.sheaders_list);
         self.sheaders_init_colummns();
 
         self.shdr_frame.set_visible(false);
-        self.sheaders_layout.add_child((0, 60), (100, 40), &self.shdr_frame);
+        self.sheaders_layout
+            .add_child((0, 60), (100, 40), &self.shdr_frame);
         self.shdr_init();
     }
 
     pub fn sheaders_init_navigation_items(&self, parent: &TreeItem, elf: &Elf) {
-        let tree= &self.nav_panel_tree;
+        let tree = &self.nav_panel_tree;
 
         match elf.is_64_bit() {
             true => {
@@ -25,11 +29,14 @@ impl super::ElfExplorer {
                     let name;
                     if let None = shdr.name {
                         name = "UNKNOWN";
-                    }
-                    else {
+                    } else {
                         name = shdr.name.as_ref().unwrap();
                     }
-                    tree.insert_item(&format!("{}: {}", i, name), Some(parent), nwg::TreeInsert::Last);
+                    tree.insert_item(
+                        &format!("{}: {}", i, name),
+                        Some(parent),
+                        nwg::TreeInsert::Last,
+                    );
                 }
             }
             false => {
@@ -37,11 +44,14 @@ impl super::ElfExplorer {
                     let name;
                     if let None = shdr.name {
                         name = "UNKNOWN";
-                    }
-                    else {
+                    } else {
                         name = shdr.name.as_ref().unwrap();
                     }
-                    tree.insert_item(&format!("{}: {}", i, name), Some(parent), nwg::TreeInsert::Last);
+                    tree.insert_item(
+                        &format!("{}: {}", i, name),
+                        Some(parent),
+                        nwg::TreeInsert::Last,
+                    );
                 }
             }
         }
@@ -52,19 +62,19 @@ impl super::ElfExplorer {
             index: Some(0),
             fmt: None,
             width: Some(100),
-            text: Some("Index".to_owned())
+            text: Some("Index".to_owned()),
         };
         let type_col = nwg::InsertListViewColumn {
             index: Some(1),
             fmt: None,
             width: Some(150),
-            text: Some("Type".to_owned())
+            text: Some("Type".to_owned()),
         };
         let name_col = nwg::InsertListViewColumn {
             index: Some(2),
             fmt: None,
             width: Some(330),
-            text: Some("Name".to_owned())
+            text: Some("Name".to_owned()),
         };
         self.sheaders_list.insert_column(index_col);
         self.sheaders_list.insert_column(type_col);
@@ -87,48 +97,48 @@ impl super::ElfExplorer {
                     let index = nwg::InsertListViewItem {
                         index: Some(i as i32),
                         column_index: 0,
-                        text: Some(format!("{}", i))
+                        text: Some(format!("{}", i)),
                     };
                     let sh_type = nwg::InsertListViewItem {
                         index: Some(i as i32),
                         column_index: 1,
-                        text: Some(shdr.sh_type.to_str())
+                        text: Some(shdr.sh_type.to_str()),
                     };
                     let name = match &shdr.name {
                         Some(name) => name.to_owned(),
-                        None => "UNKNOWN".to_owned()
+                        None => "UNKNOWN".to_owned(),
                     };
                     let sh_name = nwg::InsertListViewItem {
                         index: Some(i as i32),
                         column_index: 2,
-                        text: Some(name)
+                        text: Some(name),
                     };
                     self.sheaders_list.insert_item(index);
                     self.sheaders_list.insert_item(sh_type);
                     self.sheaders_list.insert_item(sh_name);
                 }
-            },
+            }
             false => {
                 let shdrs = elf.shdr_table.shdrs32.as_ref().unwrap();
                 for (i, shdr) in shdrs.iter().enumerate() {
                     let index = nwg::InsertListViewItem {
                         index: Some(i as i32),
                         column_index: 0,
-                        text: Some(format!("{}", i))
+                        text: Some(format!("{}", i)),
                     };
                     let sh_type = nwg::InsertListViewItem {
                         index: Some(i as i32),
                         column_index: 1,
-                        text: Some(shdr.sh_type.to_str())
+                        text: Some(shdr.sh_type.to_str()),
                     };
                     let name = match &shdr.name {
                         Some(name) => name.to_owned(),
-                        None => "UNKNOWN".to_owned()
+                        None => "UNKNOWN".to_owned(),
                     };
                     let sh_name = nwg::InsertListViewItem {
                         index: Some(i as i32),
                         column_index: 2,
-                        text: Some(name)
+                        text: Some(name),
                     };
                     self.sheaders_list.insert_item(index);
                     self.sheaders_list.insert_item(sh_type);
@@ -191,7 +201,8 @@ impl super::ElfExplorer {
 impl super::ElfExplorer {
     pub fn shdr_init(&self) {
         self.shdr_list.set_headers_enabled(true);
-        self.shdr_layout.add_child((0, 0), (100, 100), &self.shdr_list);
+        self.shdr_layout
+            .add_child((0, 0), (100, 100), &self.shdr_list);
         self.shdr_init_colummns();
     }
 
@@ -200,19 +211,19 @@ impl super::ElfExplorer {
             index: Some(0),
             fmt: None,
             width: Some(100),
-            text: Some("Field".to_owned())
+            text: Some("Field".to_owned()),
         };
         let value_col = nwg::InsertListViewColumn {
             index: Some(1),
             fmt: None,
             width: Some(240),
-            text: Some("Value".to_owned())
+            text: Some("Value".to_owned()),
         };
         let data_col = nwg::InsertListViewColumn {
             index: Some(2),
             fmt: None,
             width: Some(255),
-            text: Some("Data".to_owned())
+            text: Some("Data".to_owned()),
         };
         self.shdr_list.insert_column(field_col);
         self.shdr_list.insert_column(value_col);
@@ -231,21 +242,21 @@ impl super::ElfExplorer {
         let sh_name_field = nwg::InsertListViewItem {
             index: Some(0),
             column_index: 0,
-            text: Some("sh_name".to_owned())
+            text: Some("sh_name".to_owned()),
         };
         let name = match &shdr.name {
             Some(name) => name.to_owned(),
-            None => "UNKNOWN".to_owned()
+            None => "UNKNOWN".to_owned(),
         };
         let sh_name_value = nwg::InsertListViewItem {
             index: Some(0),
             column_index: 1,
-            text: Some(name)
+            text: Some(name),
         };
         let sh_name_data = nwg::InsertListViewItem {
             index: Some(0),
             column_index: 2,
-            text: Some(format!("0x{:x}", shdr.sh_name))
+            text: Some(format!("0x{:x}", shdr.sh_name)),
         };
         list.insert_item(sh_name_field);
         list.insert_item(sh_name_value);
@@ -287,21 +298,21 @@ impl super::ElfExplorer {
         let sh_name_field = nwg::InsertListViewItem {
             index: Some(0),
             column_index: 0,
-            text: Some("sh_name".to_owned())
+            text: Some("sh_name".to_owned()),
         };
         let name = match &shdr.name {
             Some(name) => name.to_owned(),
-            None => "UNKNOWN".to_owned()
+            None => "UNKNOWN".to_owned(),
         };
         let sh_name_value = nwg::InsertListViewItem {
             index: Some(0),
             column_index: 1,
-            text: Some(name)
+            text: Some(name),
         };
         let sh_name_data = nwg::InsertListViewItem {
             index: Some(0),
             column_index: 2,
-            text: Some(format!("0x{:x}", shdr.sh_name))
+            text: Some(format!("0x{:x}", shdr.sh_name)),
         };
         list.insert_item(sh_name_field);
         list.insert_item(sh_name_value);
@@ -352,7 +363,7 @@ impl super::ElfExplorer {
                 7 => set("Extra info (interpretation depends on section type)"),
                 8 => set("Address alignment of section"),
                 9 => set("Entry size (for sections that hold a table of some sort)"),
-                _ => set("")
+                _ => set(""),
             };
         }
     }

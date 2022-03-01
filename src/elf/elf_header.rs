@@ -1,5 +1,5 @@
-use crate::utils::{RcSlice, self};
-use super::{Description, ParsingError, ElfNAddr, ElfNOff};
+use super::{Description, ElfNAddr, ElfNOff, ParsingError};
+use crate::utils::{self, RcSlice};
 
 const EI_NIDENT: usize = 16;
 
@@ -20,7 +20,7 @@ pub struct ElfHeader {
     pub e_phnum: u16,
     pub e_shentsize: u16,
     pub e_shnum: u16,
-    pub e_shstrndx: u16
+    pub e_shstrndx: u16,
 }
 
 impl ElfHeader {
@@ -32,9 +32,13 @@ impl ElfHeader {
         let is_little_endian = match e_ident.ei_data.0 {
             1 => true,
             2 => false,
-            _ => { return Err(ParsingError::InvalidByteOrder("Could not determine byte order from EI_DATA field".to_owned())); }
+            _ => {
+                return Err(ParsingError::InvalidByteOrder(
+                    "Could not determine byte order from EI_DATA field".to_owned(),
+                ));
+            }
         };
-        
+
         // extract e_type
         let e_type = EType(raw.read_u16(16, is_little_endian));
 
@@ -48,7 +52,11 @@ impl ElfHeader {
         let is_64_bit = match e_ident.ei_class.0 {
             1 => false,
             2 => true,
-            _ => { return Err(ParsingError::InvalidNativeSize("Could not determine native size from EI_CLASS field".to_owned())); }
+            _ => {
+                return Err(ParsingError::InvalidNativeSize(
+                    "Could not determine native size from EI_CLASS field".to_owned(),
+                ));
+            }
         };
 
         // extract e_entry
@@ -57,63 +65,63 @@ impl ElfHeader {
         // extract e_phoff
         let offset = match is_64_bit {
             true => 32,
-            false => 28
+            false => 28,
         };
         let e_phoff = raw.read_elfn_off(offset, is_little_endian, is_64_bit);
 
         // extract e_shoff
         let offset = match is_64_bit {
             true => 40,
-            false => 32
+            false => 32,
         };
         let e_shoff = raw.read_elfn_off(offset, is_little_endian, is_64_bit);
 
         // extract e_flags
         let offset = match is_64_bit {
             true => 48,
-            false => 36
+            false => 36,
         };
         let e_flags = raw.read_u32(offset, is_little_endian);
 
         // extract e_ehsize
         let offset = match is_64_bit {
             true => 52,
-            false => 40
+            false => 40,
         };
         let e_ehsize = raw.read_u16(offset, is_little_endian);
 
         // extract e_phentsize
         let offset = match is_64_bit {
             true => 54,
-            false => 42
+            false => 42,
         };
         let e_phentsize = raw.read_u16(offset, is_little_endian);
-        
+
         // extract e_phnum
         let offset = match is_64_bit {
             true => 56,
-            false => 44
+            false => 44,
         };
         let e_phnum = raw.read_u16(offset, is_little_endian);
 
         // extract e_shentsize
         let offset = match is_64_bit {
             true => 58,
-            false => 46
+            false => 46,
         };
         let e_shentsize = raw.read_u16(offset, is_little_endian);
 
         // extract e_shnum
         let offset = match is_64_bit {
             true => 60,
-            false => 48
+            false => 48,
         };
         let e_shnum = raw.read_u16(offset, is_little_endian);
 
         // extract e_shstrndx
         let offset = match is_64_bit {
             true => 62,
-            false => 50
+            false => 50,
         };
         let e_shstrndx = raw.read_u16(offset, is_little_endian);
 
@@ -134,7 +142,7 @@ impl ElfHeader {
             e_phnum,
             e_shentsize,
             e_shnum,
-            e_shstrndx
+            e_shstrndx,
         })
     }
 
@@ -168,9 +176,14 @@ impl EIdent {
         // make sure magic bytes are correct
         match &temp[..4] {
             b"\x7fELF" => (),
-            other => return Err(ParsingError::InvalidMagicBytes(format!("Invalid magic bytes: {}", utils::raw_to_hex(&other))))
+            other => {
+                return Err(ParsingError::InvalidMagicBytes(format!(
+                    "Invalid magic bytes: {}",
+                    utils::raw_to_hex(&other)
+                )))
+            }
         }
-        
+
         let ei_mag0 = temp[0];
         let ei_mag1 = temp[1];
         let ei_mag2 = temp[2];
@@ -197,7 +210,6 @@ impl EIdent {
     }
 }
 
-
 #[derive(Debug, PartialEq)]
 pub struct EiClass(pub u8);
 
@@ -207,7 +219,7 @@ impl Description for EiClass {
             0 => String::from("none"),
             1 => String::from("ELF32"),
             2 => String::from("ELF64"),
-            other => format!("<unknown: 0x{:x}>", other)
+            other => format!("<unknown: 0x{:x}>", other),
         }
     }
 }
@@ -221,7 +233,7 @@ impl Description for EiData {
             0 => String::from("none"),
             1 => String::from("2's complement, little endian"),
             2 => String::from("2's complement, big endian"),
-            other => format!("<unknown: 0x{:x}>", other)
+            other => format!("<unknown: 0x{:x}>", other),
         }
     }
 }
@@ -234,7 +246,7 @@ impl Description for EiVersion {
         match self.0 {
             0 => String::from("0"),
             1 => String::from("1 (current)"),
-            other => format!("{}", other)
+            other => format!("{}", other),
         }
     }
 }
@@ -269,7 +281,7 @@ impl Description for EiOsAbi {
             97 => String::from("ARM - ABI"),
             102 => String::from("CellOS Lv-2"),
             255 => String::from("Standalone App"),
-            other => format!("<unknown: 0x{:x}>", other)
+            other => format!("<unknown: 0x{:x}>", other),
         }
     }
 }
@@ -284,7 +296,7 @@ impl Description for EType {
             2 => "EXEC (Executable file)".to_owned(),
             3 => "DYN (Shared object file)".to_owned(),
             4 => "CORE (Core file)".to_owned(),
-            other => format!("<unknown: 0x{:x}>", other)
+            other => format!("<unknown: 0x{:x}>", other),
         }
     }
 }
@@ -317,7 +329,7 @@ impl Description for EMachine {
             183 => "AArch64".to_owned(),
             243 => "RISC-V".to_owned(),
             0x9026 => "Alpha".to_owned(),
-            other => format!("<unknown: 0x{:x}>", other)
+            other => format!("<unknown: 0x{:x}>", other),
         }
     }
 }

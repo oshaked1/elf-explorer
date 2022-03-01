@@ -21,11 +21,11 @@ pub struct Elf {
     pub hdr: ElfHeader,
     pub phdr_table: ProgramHeaderTable,
     pub shdr_table: SectionHeaderTable,
-    pub sections: Sections
+    pub sections: Sections,
 }
 
 impl Elf {
-    pub fn from(raw: Vec<u8>) -> Result<Self, ParsingError>  {
+    pub fn from(raw: Vec<u8>) -> Result<Self, ParsingError> {
         let len = raw.len();
         let raw = RcSlice::new(Rc::new(raw), 0, len);
         let hdr = ElfHeader::from(RcSlice::from(&raw, 0, ELF_HDR_MAX_SIZE))?;
@@ -39,7 +39,14 @@ impl Elf {
 
         let sections = Sections::from(raw.clone(), &hdr, &shdr_table);
 
-        Ok(Self { is_little_endian, is_64_bit, hdr, phdr_table, shdr_table, sections })
+        Ok(Self {
+            is_little_endian,
+            is_64_bit,
+            hdr,
+            phdr_table,
+            shdr_table,
+            sections,
+        })
     }
 
     pub fn is_little_endian(&self) -> bool {
@@ -53,42 +60,42 @@ impl Elf {
 
 pub enum ElfNAddr {
     Elf32Addr(u32),
-    Elf64Addr(u64)
+    Elf64Addr(u64),
 }
 
 impl ElfNAddr {
     pub fn to_u64(&self) -> u64 {
         match self {
             Self::Elf32Addr(addr) => addr.to_owned() as u64,
-            Self::Elf64Addr(addr) => addr.to_owned()
+            Self::Elf64Addr(addr) => addr.to_owned(),
         }
     }
 
     pub fn to_usize(&self) -> usize {
         match self {
             Self::Elf32Addr(addr) => addr.to_owned() as usize,
-            Self::Elf64Addr(addr) => addr.to_owned() as usize
+            Self::Elf64Addr(addr) => addr.to_owned() as usize,
         }
     }
 }
 
 pub enum ElfNOff {
     Elf32Off(u32),
-    Elf64Off(u64)
+    Elf64Off(u64),
 }
 
 impl ElfNOff {
     pub fn to_u64(&self) -> u64 {
         match self {
             Self::Elf32Off(off) => off.to_owned() as u64,
-            Self::Elf64Off(off) => off.to_owned()
+            Self::Elf64Off(off) => off.to_owned(),
         }
     }
 
     pub fn to_usize(&self) -> usize {
         match self {
             Self::Elf32Off(off) => off.to_owned() as usize,
-            Self::Elf64Off(off) => off.to_owned() as usize
+            Self::Elf64Off(off) => off.to_owned() as usize,
         }
     }
 }
@@ -97,5 +104,5 @@ impl ElfNOff {
 pub enum ParsingError {
     InvalidMagicBytes(String),
     InvalidByteOrder(String),
-    InvalidNativeSize(String)
+    InvalidNativeSize(String),
 }

@@ -1,17 +1,22 @@
 use native_windows_gui as nwg;
 
-use crate::elf::{Elf, EIdent, Description, ElfNAddr, ElfNOff};
-use crate::{utils, descriptive_field, address_field, offset_field, size_field, raw_field, hex_field, decimal_field};
+use crate::elf::{Description, EIdent, Elf, ElfNAddr, ElfNOff};
+use crate::{
+    address_field, decimal_field, descriptive_field, hex_field, offset_field, raw_field,
+    size_field, utils,
+};
 
 // ELF header methods
 impl super::ElfExplorer {
     pub fn elf_header_init(&self) {
         self.elf_header_list.set_headers_enabled(true);
-        self.elf_header_layout.add_child((0, 0), (100, 60), &self.elf_header_list);
+        self.elf_header_layout
+            .add_child((0, 0), (100, 60), &self.elf_header_list);
         self.elf_header_init_colummns();
 
         self.e_ident_frame.set_visible(false);
-        self.elf_header_layout.add_child((0, 60), (100, 40), &self.e_ident_frame);
+        self.elf_header_layout
+            .add_child((0, 60), (100, 40), &self.e_ident_frame);
         self.e_ident_init();
     }
 
@@ -20,19 +25,19 @@ impl super::ElfExplorer {
             index: Some(0),
             fmt: None,
             width: Some(100),
-            text: Some("Field".to_owned())
+            text: Some("Field".to_owned()),
         };
         let value_col = nwg::InsertListViewColumn {
             index: Some(1),
             fmt: None,
             width: Some(240),
-            text: Some("Value".to_owned())
+            text: Some("Value".to_owned()),
         };
         let data_col = nwg::InsertListViewColumn {
             index: Some(2),
             fmt: None,
             width: Some(255),
-            text: Some("Data".to_owned())
+            text: Some("Data".to_owned()),
         };
         self.elf_header_list.insert_column(field_col);
         self.elf_header_list.insert_column(value_col);
@@ -108,7 +113,7 @@ impl super::ElfExplorer {
                 0 => {
                     self.e_ident_frame.set_visible(true);
                     set("ELF identifier (inner fields displayed below)")
-                },
+                }
                 1 => set("ELF type"),
                 2 => set("Target CPU architecture"),
                 3 => set("ELF version"),
@@ -121,8 +126,10 @@ impl super::ElfExplorer {
                 10 => set("Number of program headers"),
                 11 => set("Size of each section header"),
                 12 => set("Number of section headers"),
-                13 => set("Section header table index of the entry that contains the section names"),
-                _ => set("")
+                13 => {
+                    set("Section header table index of the entry that contains the section names")
+                }
+                _ => set(""),
             }
         }
     }
@@ -132,7 +139,8 @@ impl super::ElfExplorer {
 impl super::ElfExplorer {
     fn e_ident_init(&self) {
         self.e_ident_list.set_headers_enabled(true);
-        self.e_ident_layout.add_child((0, 0), (100, 100), &self.e_ident_list);
+        self.e_ident_layout
+            .add_child((0, 0), (100, 100), &self.e_ident_list);
         self.e_ident_init_colummns();
     }
 
@@ -141,19 +149,19 @@ impl super::ElfExplorer {
             index: Some(0),
             fmt: None,
             width: Some(100),
-            text: Some("Field".to_owned())
+            text: Some("Field".to_owned()),
         };
         let value_col = nwg::InsertListViewColumn {
             index: Some(1),
             fmt: None,
             width: Some(240),
-            text: Some("Value".to_owned())
+            text: Some("Value".to_owned()),
         };
         let data_col = nwg::InsertListViewColumn {
             index: Some(2),
             fmt: None,
             width: Some(255),
-            text: Some("Data".to_owned())
+            text: Some("Data".to_owned()),
         };
         self.e_ident_list.insert_column(field_col);
         self.e_ident_list.insert_column(value_col);
@@ -173,17 +181,26 @@ impl super::ElfExplorer {
         let ei_mag_field = nwg::InsertListViewItem {
             index: Some(0),
             column_index: 0,
-            text: Some("EI_MAG".to_owned())
+            text: Some("EI_MAG".to_owned()),
         };
         let ei_mag_value = nwg::InsertListViewItem {
             index: Some(0),
             column_index: 1,
-            text: Some(format!("0x{:x}  {}{}{}", e_ident.ei_mag0, e_ident.ei_mag1 as char, e_ident.ei_mag2 as char, e_ident.ei_mag3 as char))
+            text: Some(format!(
+                "0x{:x}  {}{}{}",
+                e_ident.ei_mag0,
+                e_ident.ei_mag1 as char,
+                e_ident.ei_mag2 as char,
+                e_ident.ei_mag3 as char
+            )),
         };
         let ei_mag_data = nwg::InsertListViewItem {
             index: Some(0),
             column_index: 2,
-            text: Some(format!("{:X} {:X} {:X} {:X}", e_ident.ei_mag0, e_ident.ei_mag1, e_ident.ei_mag2, e_ident.ei_mag3))
+            text: Some(format!(
+                "{:X} {:X} {:X} {:X}",
+                e_ident.ei_mag0, e_ident.ei_mag1, e_ident.ei_mag2, e_ident.ei_mag3
+            )),
         };
         list.insert_item(ei_mag_field);
         list.insert_item(ei_mag_value);
@@ -221,7 +238,7 @@ impl super::ElfExplorer {
                 4 => set("Operating system ABI"),
                 5 => set("ABI version"),
                 6 => set("Pad (should be all zeroes)"),
-                _ => set("")
+                _ => set(""),
             }
         }
     }

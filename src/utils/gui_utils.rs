@@ -4,17 +4,17 @@ macro_rules! descriptive_field {
         let field = nwg::InsertListViewItem {
             index: Some($row),
             column_index: 0,
-            text: Some($name.to_owned())
+            text: Some($name.to_owned()),
         };
         let value = nwg::InsertListViewItem {
             index: Some($row),
             column_index: 1,
-            text: Some($val.to_str())
+            text: Some($val.to_str()),
         };
         let data = nwg::InsertListViewItem {
             index: Some($row),
             column_index: 2,
-            text: Some(format!("0x{:x}", $val.0))
+            text: Some(format!("0x{:x}", $val.0)),
         };
         $list.insert_item(field);
         $list.insert_item(value);
@@ -28,25 +28,25 @@ macro_rules! address_field {
         let field = nwg::InsertListViewItem {
             index: Some($row),
             column_index: 0,
-            text: Some($name.to_owned())
+            text: Some($name.to_owned()),
         };
         let text = match $val {
             ElfNAddr::Elf32Addr(val) => format!("0x{:x}", val),
-            ElfNAddr::Elf64Addr(val) => format!("0x{:x}", val)
+            ElfNAddr::Elf64Addr(val) => format!("0x{:x}", val),
         };
         let value = nwg::InsertListViewItem {
             index: Some($row),
             column_index: 1,
-            text: Some(text)
+            text: Some(text),
         };
         let text = match $val {
             ElfNAddr::Elf32Addr(val) => utils::u32_to_hex(val, $is_little_endian),
-            ElfNAddr::Elf64Addr(val) => utils::u64_to_hex(val, $is_little_endian)
+            ElfNAddr::Elf64Addr(val) => utils::u64_to_hex(val, $is_little_endian),
         };
         let data = nwg::InsertListViewItem {
             index: Some($row),
             column_index: 2,
-            text: Some(text)
+            text: Some(text),
         };
         $list.insert_item(field);
         $list.insert_item(value);
@@ -60,25 +60,25 @@ macro_rules! offset_field {
         let field = nwg::InsertListViewItem {
             index: Some($row),
             column_index: 0,
-            text: Some($name.to_owned())
+            text: Some($name.to_owned()),
         };
         let text = match $val {
             ElfNOff::Elf32Off(val) => format!("0x{:x} (bytes into file)", val),
-            ElfNOff::Elf64Off(val) => format!("0x{:x} (bytes into file)", val)
+            ElfNOff::Elf64Off(val) => format!("0x{:x} (bytes into file)", val),
         };
         let value = nwg::InsertListViewItem {
             index: Some($row),
             column_index: 1,
-            text: Some(text)
+            text: Some(text),
         };
         let text = match $val {
             ElfNOff::Elf32Off(val) => utils::u32_to_hex(val, $is_little_endian),
-            ElfNOff::Elf64Off(val) => utils::u64_to_hex(val, $is_little_endian)
+            ElfNOff::Elf64Off(val) => utils::u64_to_hex(val, $is_little_endian),
         };
         let data = nwg::InsertListViewItem {
             index: Some($row),
             column_index: 2,
-            text: Some(text)
+            text: Some(text),
         };
         $list.insert_item(field);
         $list.insert_item(value);
@@ -92,17 +92,17 @@ macro_rules! size_field {
         let field = nwg::InsertListViewItem {
             index: Some($row),
             column_index: 0,
-            text: Some($name.to_owned())
+            text: Some($name.to_owned()),
         };
         let value = nwg::InsertListViewItem {
             index: Some($row),
             column_index: 1,
-            text: Some(format!("{} (bytes)", $val))
+            text: Some(format!("{} (bytes)", $val)),
         };
         let data = nwg::InsertListViewItem {
             index: Some($row),
             column_index: 2,
-            text: Some(format!("0x{:x}", $val))
+            text: Some(format!("0x{:x}", $val)),
         };
         $list.insert_item(field);
         $list.insert_item(value);
@@ -116,12 +116,12 @@ macro_rules! raw_field {
         let field = nwg::InsertListViewItem {
             index: Some($row),
             column_index: 0,
-            text: Some($name.to_owned())
+            text: Some($name.to_owned()),
         };
         let data = nwg::InsertListViewItem {
             index: Some($row),
             column_index: 2,
-            text: Some(utils::raw_to_hex($val.get()))
+            text: Some(utils::raw_to_hex($val.get())),
         };
         $list.insert_item(field);
         $list.insert_item(data);
@@ -134,17 +134,17 @@ macro_rules! hex_field {
         let field = nwg::InsertListViewItem {
             index: Some($row),
             column_index: 0,
-            text: Some($name.to_owned())
+            text: Some($name.to_owned()),
         };
         let value = nwg::InsertListViewItem {
             index: Some($row),
             column_index: 1,
-            text: Some(format!("0x{:x}", $val))
+            text: Some(format!("0x{:x}", $val)),
         };
         let data = nwg::InsertListViewItem {
             index: Some($row),
             column_index: 2,
-            text: Some(format!("0x{:x}", $val))
+            text: Some(format!("0x{:x}", $val)),
         };
         $list.insert_item(field);
         $list.insert_item(value);
@@ -158,17 +158,17 @@ macro_rules! decimal_field {
         let field = nwg::InsertListViewItem {
             index: Some($row),
             column_index: 0,
-            text: Some($name.to_owned())
+            text: Some($name.to_owned()),
         };
         let value = nwg::InsertListViewItem {
             index: Some($row),
             column_index: 1,
-            text: Some(format!("{}", $val))
+            text: Some(format!("{}", $val)),
         };
         let data = nwg::InsertListViewItem {
             index: Some($row),
             column_index: 2,
-            text: Some(format!("0x{:x}", $val))
+            text: Some(format!("0x{:x}", $val)),
         };
         $list.insert_item(field);
         $list.insert_item(value);

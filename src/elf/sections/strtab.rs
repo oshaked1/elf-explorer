@@ -1,14 +1,18 @@
 use crate::utils::{self, RcSlice};
 
 pub struct StrtabSection {
-    pub strings: Vec<(usize, String)>
+    pub strings: Vec<(usize, String)>,
 }
 
 impl StrtabSection {
     pub fn from(data: Option<RcSlice<u8>>) -> Self {
         let orig_data = match data {
-            None => return Self { strings: Vec::<(usize, String)>::new() },
-            Some(data) => data
+            None => {
+                return Self {
+                    strings: Vec::<(usize, String)>::new(),
+                }
+            }
+            Some(data) => data,
         };
         //return Self { strings: Vec::<(usize, String)>::new() };
         let data = orig_data.get();
@@ -23,8 +27,7 @@ impl StrtabSection {
             string = tup.1;
             if let Ok(string) = string {
                 strings.push((old_offset, string.to_owned()));
-            }
-            else {
+            } else {
                 strings.push((old_offset, "ERROR PARSING STRING".to_owned()));
             }
         }

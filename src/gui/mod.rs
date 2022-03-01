@@ -1,7 +1,7 @@
 extern crate native_windows_derive as nwd;
 extern crate native_windows_gui as nwg;
 
-use nwd::{NwgUi, NwgPartial};
+use nwd::{NwgPartial, NwgUi};
 use nwg::NativeUi;
 
 use std::cell::RefCell;
@@ -11,14 +11,16 @@ use std::io::Read;
 
 use crate::elf;
 
-mod nav_panel;
 mod elf_header;
+mod nav_panel;
 mod pheaders;
-mod sheaders;
 mod sections;
+mod sheaders;
 
 // GRID, FULL_ROW_SELECT
-const EX_FLAGS: nwg::ListViewExFlags = nwg::ListViewExFlags::from_bits_truncate(nwg::ListViewExFlags::GRID.bits() | nwg::ListViewExFlags::FULL_ROW_SELECT.bits());
+const EX_FLAGS: nwg::ListViewExFlags = nwg::ListViewExFlags::from_bits_truncate(
+    nwg::ListViewExFlags::GRID.bits() | nwg::ListViewExFlags::FULL_ROW_SELECT.bits(),
+);
 
 #[derive(Default, NwgUi)]
 pub struct ElfExplorer {
@@ -85,7 +87,7 @@ pub struct ElfExplorer {
     // ELF header view
     #[nwg_control(position: (200, 0), size: (600, 580), flags: "NONE")]
     elf_header_frame: nwg::Frame,
-    
+
     #[nwg_layout(parent: elf_header_frame)]
     elf_header_layout: nwg::DynLayout,
 
@@ -96,7 +98,7 @@ pub struct ElfExplorer {
     // e_ident view
     #[nwg_control(parent: elf_header_frame, position: (0, 348), size: (600, 232), flags: "NONE")]
     e_ident_frame: nwg::Frame,
-    
+
     #[nwg_layout(parent: e_ident_frame)]
     e_ident_layout: nwg::DynLayout,
 
@@ -107,7 +109,7 @@ pub struct ElfExplorer {
     // Program header table view
     #[nwg_control(position: (200, 0), size: (600, 580), flags: "NONE")]
     pheaders_frame: nwg::Frame,
-    
+
     #[nwg_layout(parent: pheaders_frame)]
     pheaders_layout: nwg::DynLayout,
 
@@ -118,7 +120,7 @@ pub struct ElfExplorer {
     // phdr view
     #[nwg_control(parent: pheaders_frame, position: (0, 348), size: (600, 232), flags: "NONE")]
     phdr_frame: nwg::Frame,
-    
+
     #[nwg_layout(parent: phdr_frame)]
     phdr_layout: nwg::DynLayout,
 
@@ -156,30 +158,39 @@ pub struct ElfExplorer {
     strtab_layout: nwg::DynLayout,
 
     #[nwg_control(parent: strtab_frame, position: (0, 0), size: (600, 580), item_count: 1, list_style: ListViewStyle::Detailed, flags: "VISIBLE", ex_flags: EX_FLAGS)]
-    strtab_list: nwg::ListView
+    strtab_list: nwg::ListView,
 }
 
 impl ElfExplorer {
     fn init(&self) {
-        self.window.set_icon(self.embed.icon_str("MAINICON", None).as_ref());
-        
+        self.window
+            .set_icon(self.embed.icon_str("MAINICON", None).as_ref());
+
         self.set_all_frames_invisible();
 
         self.field_desc_frame.set_visible(true);
 
-        self.field_desc.set("Open a file using the top menu, or by dragging it into the window");
+        self.field_desc
+            .set("Open a file using the top menu, or by dragging it into the window");
 
         self.init_views();
     }
 
     fn init_views(&self) {
-        self.main_layout.add_child((0, 0), (0, 100), &self.nav_panel_frame);
-        self.main_layout.add_child((0, 100), (100, 0), &self.field_desc_frame);
-        self.main_layout.add_child((0, 0), (100, 100), &self.elf_header_frame);
-        self.main_layout.add_child((0, 0), (100, 100), &self.pheaders_frame);
-        self.main_layout.add_child((0, 0), (100, 100), &self.sheaders_frame);
-        self.main_layout.add_child((0, 0), (100, 100), &self.unimplemented_frame);
-        self.main_layout.add_child((0, 0), (100, 100), &self.strtab_frame);
+        self.main_layout
+            .add_child((0, 0), (0, 100), &self.nav_panel_frame);
+        self.main_layout
+            .add_child((0, 100), (100, 0), &self.field_desc_frame);
+        self.main_layout
+            .add_child((0, 0), (100, 100), &self.elf_header_frame);
+        self.main_layout
+            .add_child((0, 0), (100, 100), &self.pheaders_frame);
+        self.main_layout
+            .add_child((0, 0), (100, 100), &self.sheaders_frame);
+        self.main_layout
+            .add_child((0, 0), (100, 100), &self.unimplemented_frame);
+        self.main_layout
+            .add_child((0, 0), (100, 100), &self.strtab_frame);
 
         self.nav_panel_init();
         self.field_desc.init(&self.field_desc_frame);
@@ -192,7 +203,8 @@ impl ElfExplorer {
 
     pub fn set_all_frames_invisible(&self) {
         self.unimplemented_frame.set_visible(false);
-        self.unimplemented_message.set_text("This feature is not implemented yet.");
+        self.unimplemented_message
+            .set_text("This feature is not implemented yet.");
         self.elf_header_frame.set_visible(false);
         self.pheaders_frame.set_visible(false);
         self.sheaders_frame.set_visible(false);
@@ -217,7 +229,8 @@ impl ElfExplorer {
         self.elf_header_populate(elf);
         self.elf_header_frame.set_visible(true);
 
-        self.field_desc.set("Select any item to display a brief explanation");
+        self.field_desc
+            .set("Select any item to display a brief explanation");
     }
 
     fn size(&self) {
@@ -270,20 +283,17 @@ impl ElfExplorer {
             );
             return;
         }
-        
+
         let mut f = File::open(&*filename).expect("Cannot open file");
         let mut contents = vec![0; metadata.len() as usize];
         f.read(&mut contents).expect("Buffer overflow");
         let elf = match elf::Elf::from(contents) {
             Ok(val) => val,
             Err(err) => match err {
-                elf::ParsingError::InvalidMagicBytes(msg) |
-                elf::ParsingError::InvalidByteOrder(msg) |
-                elf::ParsingError::InvalidNativeSize(msg) => {
-                    nwg::modal_error_message(
-                        &self.window,
-                        "Error parsing file",
-                        &msg);
+                elf::ParsingError::InvalidMagicBytes(msg)
+                | elf::ParsingError::InvalidByteOrder(msg)
+                | elf::ParsingError::InvalidNativeSize(msg) => {
+                    nwg::modal_error_message(&self.window, "Error parsing file", &msg);
                     return;
                 }
             },
@@ -311,7 +321,8 @@ impl ElfExplorer {
             .expect("Failed to build font");
         self.unimplemented_message.set_font(Some(&font));
 
-        self.unimplemented_layout.add_child((0, 0), (100, 100), &self.unimplemented_message);
+        self.unimplemented_layout
+            .add_child((0, 0), (100, 100), &self.unimplemented_message);
     }
 }
 
@@ -331,14 +342,13 @@ pub fn run() {
     nwg::dispatch_thread_events();
 }
 
-
 #[derive(Default, NwgPartial)]
 pub struct FieldDesc {
     #[nwg_layout]
     layout: nwg::DynLayout,
 
     #[nwg_control(position: (0, 0), size: (800, 29), readonly: true, flags: "VISIBLE | DISABLED")]
-    description: nwg::TextBox
+    description: nwg::TextBox,
 }
 
 impl FieldDesc {
@@ -353,7 +363,7 @@ impl FieldDesc {
             .size(16)
             .build(&mut font)
             .expect("Failed to build font");
-        
+
         self.description.set_font(Some(&font));
     }
 
