@@ -6,6 +6,7 @@ use crate::elf::sections::StrtabSection;
 impl ElfExplorer {
     pub fn strtab_init(&self) {
         self.strtab_list.set_headers_enabled(true);
+        self.strtab_layout.add_child((0, 0), (100, 100), &self.strtab_list);
         self.strtab_init_columns();
     }
 

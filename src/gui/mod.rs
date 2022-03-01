@@ -69,6 +69,9 @@ pub struct ElfExplorer {
     #[nwg_control(position: (200, 0), size: (600, 580), flags: "NONE")]
     unimplemented_frame: nwg::Frame,
 
+    #[nwg_layout(parent: unimplemented_frame)]
+    unimplemented_layout: nwg::DynLayout,
+
     #[nwg_control(parent: unimplemented_frame, position: (0, 0), size: (600, 580), readonly: true, flags: "VISIBLE | DISABLED")]
     unimplemented_message: nwg::TextBox,
 
@@ -141,6 +144,9 @@ pub struct ElfExplorer {
     // Strtab section view
     #[nwg_control(position: (200, 0), size: (600, 580), flags: "NONE")]
     strtab_frame: nwg::Frame,
+
+    #[nwg_layout(parent: strtab_frame)]
+    strtab_layout: nwg::DynLayout,
 
     #[nwg_control(parent: strtab_frame, position: (0, 0), size: (600, 580), item_count: 1, list_style: ListViewStyle::Detailed, flags: "VISIBLE", ex_flags: EX_FLAGS)]
     strtab_list: nwg::ListView
@@ -296,6 +302,8 @@ impl ElfExplorer {
             .build(&mut font)
             .expect("Failed to build font");
         self.unimplemented_message.set_font(Some(&font));
+
+        self.unimplemented_layout.add_child((0, 0), (100, 100), &self.unimplemented_message);
     }
 }
 
