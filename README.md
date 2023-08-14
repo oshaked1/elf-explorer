@@ -2,7 +2,7 @@
 
 **ELF Explorer** is a Windows GUI application for viewing and analyzing ELF files. It is inspired by PE analysis tools like [CFF Explorer](https://ntcore.com/?page_id=388) and [pestudio](https://www.winitor.com/).
 
-:warning: This project is in active development and is currently missing many important features.
+:warning: This project is not being developed anymore. It's in an early stage and doesn't provide full analysis capabilities.
 
 ## Installation
 
